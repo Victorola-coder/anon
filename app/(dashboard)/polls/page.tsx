@@ -22,6 +22,16 @@ export interface PollOption {
   votes: number;
 }
 
+export interface Poll {
+  id: string;
+  question: string;
+  options: PollOption[];
+  totalVotes: number;
+  status: "active" | "ended";
+  createdAt: string;
+  endsAt?: string;
+}
+
 export default function PollsPage() {
   const [polls, setPolls] = useState<Poll[]>([
     {

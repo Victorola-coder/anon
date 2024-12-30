@@ -13,7 +13,7 @@ import {
   Share2,
 } from "lucide-react";
 import Button from "@/app/components/ui/button";
-import { ExpirationDisplay } from "@/app/components/expiration-display";
+import { ExpirationDisplay } from "@/app/(public)/components/expiration-display";
 
 interface ContentViewerProps {
   type: "message" | "poll";
@@ -122,8 +122,8 @@ export function ContentViewer({
         <div className="flex items-center gap-4">
           {type === "message" && onToggleStar && (
             <Button
-              variant="ghost"
               size="sm"
+              variant="secondary"
               onClick={() => onToggleStar(data.id)}
               className={`text-slate hover:text-yellow-400 ${
                 (data as Message).starred ? "text-yellow-400" : ""
@@ -134,8 +134,8 @@ export function ContentViewer({
           )}
           {onShare && (
             <Button
-              variant="ghost"
               size="sm"
+              variant="secondary"
               onClick={() => onShare(data.id)}
               className="text-slate hover:text-slate-lighter"
             >
