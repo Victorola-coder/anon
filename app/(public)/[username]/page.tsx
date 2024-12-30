@@ -11,10 +11,13 @@ import {
   Eye,
   Share2,
   AlertCircle,
+  EyeOff,
 } from "lucide-react";
 import { toast } from "sonner";
 import Button from "@/app/components/ui/button";
 import { ImageUpload } from "@/app/components/ui/image-upload";
+import { MessagePreviewModal } from "../components/message-preview-modal";
+import { PasswordStrength } from "../components/password-strength";
 
 interface MessageOptions {
   isTemporary: boolean;
@@ -40,6 +43,8 @@ export default function UserPublicPage() {
     notifyOnRead: false,
     hasImage: false,
   });
+  const [showPreview, setShowPreview] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const params = useParams();
   const username = params.username as string;
@@ -280,23 +285,34 @@ export default function UserPublicPage() {
                           )}
 
                           {options.hasPassword && (
-                            <div>
-                              <label className="block text-sm text-slate mb-2">
-                                Password
-                              </label>
-                              <input
-                                type="password"
-                                value={options.password}
-                                onChange={(e) =>
-                                  setOptions({
-                                    ...options,
-                                    password: e.target.value,
-                                  })
-                                }
-                                placeholder="Enter password"
-                                className="w-full bg-navy-light border border-navy-light rounded-lg px-3 py-2 text-slate-lighter focus:outline-none focus:border-teal"
-                                minLength={4}
-                              />
+                            <div className="space-y-2">
+                              <div className="relative">
+                                <input
+                                  type={showPassword ? "text" : "password"}
+                                  value={options.password}
+                                  onChange={(e) =>
+                                    setOptions({
+                                      ...options,
+                                      password: e.target.value,
+                                    })
+                                  }
+                                  placeholder="Enter password"
+                                  className="w-full bg-navy-light border border-navy-light rounded-lg pl-3 pr-10 py-2 text-slate-lighter focus:outline-none focus:border-teal"
+                                  minLength={4}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setShowPassword(!showPassword)}
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate hover:text-slate-lighter"
+                                >
+                                  {showPassword ? (
+                                    <EyeOff size={16} />
+                                  ) : (
+                                    <Eye size={16} />
+                                  )}
+                                </button>
+                              </div>
+                              <PasswordStrength password={options.password} />
                             </div>
                           )}
                         </motion.div>
@@ -380,18 +396,26 @@ export default function UserPublicPage() {
               </AnimatePresence>
             </div>
 
-            <Button
-              type="submit"
-              disabled={
-                !message.trim() ||
-                isLoading ||
-                (options.hasImage && !selectedImage)
-              }
-              loading={isLoading}
-              className="w-full"
-            >
-              Send Anonymously
-            </Button>
+            <div className="flex justify-between gap-3">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setShowPreview(true)}
+              >
+                Preview Message
+              </Button>
+              <Button
+                type="submit"
+                disabled={
+                  !message.trim() ||
+                  isLoading ||
+                  (options.hasImage && !selectedImage)
+                }
+                loading={isLoading}
+              >
+                Send Anonymously
+              </Button>
+            </div>
           </form>
 
           {/* Features Section */}
@@ -414,6 +438,16 @@ export default function UserPublicPage() {
               </p>
             </div>
           </div>
+
+          <MessagePreviewModal
+            isOpen={showPreview}
+            onClose={() => setShowPreview(false)}
+            message={message}
+            imagePreview={
+              selectedImage ? URL.createObjectURL(selectedImage) : null
+            }
+            options={options}
+          />
         </motion.div>
       </div>
     </main>
