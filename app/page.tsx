@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { toast } from "sonner";
 import { Button } from "./components/ui";
 
 export default function Home() {
@@ -8,10 +11,10 @@ export default function Home() {
         <nav className="max-w-7xl mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold">Anon</h1>
           <div className="space-x-4">
-            <Link href="/sign-in">
+            <Link href="/signin">
               <Button>Login</Button>
             </Link>
-            <Link href="/sign-up">
+            <Link href="/signup">
               <Button>Get Started</Button>
             </Link>
           </div>
@@ -29,7 +32,7 @@ export default function Home() {
             Express yourself freely without revealing your identity. Create
             polls, share messages, and connect authentically.
           </p>
-          <div className="mt-10">
+          <div onClick={() => toast.success("Coming soon")} className="mt-10">
             <Button>Start Messaging</Button>
           </div>
         </div>

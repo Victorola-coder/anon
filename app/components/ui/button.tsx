@@ -17,15 +17,15 @@ export default function Button(props: ButtonProps) {
       disabled={loading || disabled}
       className={clsx(
         !noDefault &&
-          "bg-transparent border border-teal text-teal hover:bg-teal/10 transition-all duration-300 active:scale-[0.97] rounded-md px-4 py-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50",
+          "bg-primary hover:bg-primary-100 active:bg-primary-200 active:shadow-primary transition-all duration-300 active:scale-[0.97] rounded-[10px] px-[21px] py-[12.5px] text-white font-medium text-[18px] leading-normal font-clashMed disabled:cursor-not-allowed disabled:bg-opacity-60",
         className
       )}
       {...prop}
     >
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex items-center justify-center">
         {loading ? (
           <svg
-            className="animate-spin h-5 w-5"
+            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"

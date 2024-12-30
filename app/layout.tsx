@@ -1,4 +1,5 @@
 import "./global.css";
+import { Toaster } from "sonner";
 import { AOS } from "./components/global";
 import { Montserrat } from "next/font/google";
 import type { Metadata, Viewport } from "next";
@@ -75,6 +76,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${montserrat.variable} antialiased`}>
+        <Toaster richColors theme="dark" position="top-center" />
         <AOS />
         {children}
       </body>
