@@ -10,6 +10,8 @@ import {
   Star,
   MoreVertical,
   CheckCircle2,
+  Clock,
+  Image,
 } from "lucide-react";
 import Button from "@/app/components/ui/button";
 
@@ -19,6 +21,10 @@ interface Message {
   timestamp: string;
   read: boolean;
   starred: boolean;
+  temporary?: {
+    expiresAt: string;
+    hasImage: boolean;
+  };
 }
 
 export default function MessagesPage() {
@@ -29,6 +35,10 @@ export default function MessagesPage() {
       timestamp: "2 hours ago",
       read: false,
       starred: false,
+      temporary: {
+        expiresAt: "2024-03-01T15:00:00",
+        hasImage: true,
+      },
     },
     {
       id: "2",
@@ -71,6 +81,10 @@ export default function MessagesPage() {
   const handleDeleteSelected = () => {
     setMessages(messages.filter((msg) => !selectedMessages.includes(msg.id)));
     setSelectedMessages([]);
+  };
+
+  const isMessageExpired = (expiresAt: string) => {
+    return new Date(expiresAt) < new Date();
   };
 
   return (
@@ -175,6 +189,22 @@ export default function MessagesPage() {
                     <span className="text-sm text-slate">
                       {message.timestamp}
                     </span>
+                    {message.temporary && (
+                      <div className="flex items-center gap-2 text-sm text-slate mt-2">
+                        <Clock size={14} />
+                        <span>
+                          Expires{" "}
+                          {new Date(
+                            message.temporary.expiresAt
+                          ).toLocaleString()}
+                        </span>
+                        {message.temporary.hasImage && (
+                          <span className="flex items-center gap-1">
+                            • <Image size={14} /> Contains image
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

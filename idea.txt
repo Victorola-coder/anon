@@ -1,0 +1,18 @@
+im trying to build an anonymous messaging app.
+
+
+
+plan, user journey
+
+maybe a landing page, login.signup. dashboarrrd to display messages. settiings to copy the liiink  they share out, darkmode toggle,  
+
+then for none user, ofc, messages would be sent without signing up but we must force them to use our platforrm afterr they sent the messages.
+
+
+features more:
+1. Anonymous poll
+2. Themed Prompts: Provide daily or weekly prompts in the feed section to spark meaningful discussions or encourage interaction.
+3. Temporary comments and posts: Allow users to post messages that disappear after a certain period, creating urgency and exclusivity.
+4. Personalised themes
+5. Option to add images to message (to manage this, the message will be temporary
+
