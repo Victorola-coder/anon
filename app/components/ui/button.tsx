@@ -3,8 +3,8 @@ import clsx from "clsx";
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
   noDefault?: boolean;
-  variant?: "default" | "secondary" | "danger";
   size?: "default" | "sm" | "lg";
+  variant?: "primary" | "default" | "secondary" | "danger";
 }
 
 export default function Button({
@@ -30,6 +30,8 @@ export default function Button({
             variant === "secondary",
           "bg-red-500/10 hover:bg-red-500/20 text-red-500":
             variant === "danger",
+          "bg-teal hover:bg-teal/80 active:bg-teal/90 text-white":
+            variant === "primary",
         },
         className
       )}

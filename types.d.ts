@@ -38,3 +38,14 @@ interface Poll {
   createdAt: string;
   endsAt?: string;
 }
+
+interface MessageOptions {
+  expiresIn: string;
+  password: string;
+  hasImage: boolean;
+  hasPassword: boolean;
+  isTemporary: boolean;
+  allowReplies: boolean;
+  notifyOnRead: boolean;
+  expirationTime?: string;
+}

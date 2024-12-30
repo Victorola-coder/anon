@@ -14,6 +14,7 @@ interface MessagePreviewModalProps {
     expiresIn: string;
     hasPassword: boolean;
     allowReplies: boolean;
+    expirationTime?: string;
   };
 }
 

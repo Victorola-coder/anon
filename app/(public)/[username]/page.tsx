@@ -1,33 +1,28 @@
 "use client";
 
+import {
+  Eye,
+  Clock,
+  Lock,
+  Share2,
+  EyeOff,
+  BarChart2,
+  AlertCircle,
+  MessageCircle,
+  Image as ImageIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  MessageCircle,
-  Clock,
-  Image as ImageIcon,
-  Lock,
-  Eye,
-  Share2,
-  AlertCircle,
-  EyeOff,
-} from "lucide-react";
 import { toast } from "sonner";
 import Button from "@/app/components/ui/button";
+import { ShareModal } from "../components/share-modal";
+import { AnonymousPollForm } from "../components/poll";
 import { ImageUpload } from "@/app/components/ui/image-upload";
-import { MessagePreviewModal } from "../components/message-preview-modal";
 import { PasswordStrength } from "../components/password-strength";
-
-interface MessageOptions {
-  isTemporary: boolean;
-  expiresIn: string;
-  hasPassword: boolean;
-  password: string;
-  allowReplies: boolean;
-  notifyOnRead: boolean;
-  hasImage: boolean;
-}
+import { ExpirationPicker } from "../components/expiration-picker";
+import { MessagePreviewModal } from "../components/message-preview-modal";
+import { formatExpirationTime, getTimeZoneAbbr } from "@/app/lib/timezone";
 
 export default function UserPublicPage() {
   const [message, setMessage] = useState("");
@@ -45,17 +40,36 @@ export default function UserPublicPage() {
   });
   const [showPreview, setShowPreview] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [mode, setMode] = useState<"message" | "poll">("message");
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<{
+    message?: string;
+    password?: string;
+  }>({});
 
   const params = useParams();
   const username = params.username as string;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const validateForm = () => {
+    const errors: typeof validationErrors = {};
+
+    if (message.length < 1) {
+      errors.message = "Message is required";
+    }
 
     if (options.hasPassword && options.password.length < 4) {
-      toast.error("Password must be at least 4 characters long");
-      return;
+      errors.password = "Password must be at least 4 characters";
     }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
 
     setIsLoading(true);
 
@@ -98,12 +112,12 @@ export default function UserPublicPage() {
           url: shareUrl,
         });
       } else {
-        await navigator.clipboard.writeText(shareUrl);
-        toast.success("Link copied to clipboard!");
+        setShowShareModal(true);
       }
     } catch (error) {
-      toast.error("Failed to share");
+      setShowShareModal(true); // Fallback to modal if native share fails
     }
+    // setShowShareModal(true);
   };
 
   return (
@@ -134,289 +148,326 @@ export default function UserPublicPage() {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Type your anonymous message..."
-                className="w-full h-32 bg-navy border border-navy-light rounded-xl px-4 py-3 text-slate-lighter focus:outline-none focus:border-teal resize-none"
-                maxLength={500}
-                required
-              />
-              <div className="flex justify-end mt-1">
-                <span
-                  className={`text-sm ${
-                    message.length > 450 ? "text-yellow-400" : "text-slate"
-                  }`}
-                >
-                  {message.length}/500
-                </span>
-              </div>
-            </div>
+          <div className="flex items-center justify-center gap-4 mt-6">
+            <Button
+              type="button"
+              variant={mode === "message" ? "primary" : "secondary"}
+              onClick={() => setMode("message")}
+              className="flex items-center gap-2"
+            >
+              <MessageCircle size={16} />
+              Send Message
+            </Button>
+            <Button
+              type="button"
+              variant={mode === "poll" ? "primary" : "secondary"}
+              onClick={() => setMode("poll")}
+              className="flex items-center gap-2"
+            >
+              <BarChart2 size={16} />
+              Create Poll
+            </Button>
+          </div>
 
-            <div className="space-y-4 bg-navy border border-navy-light rounded-xl p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Clock size={16} className="text-slate" />
-                  <span className="text-sm text-slate">Message options</span>
+          {isPageLoading ? (
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal"></div>
+            </div>
+          ) : mode === "message" ? (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Type your anonymous message..."
+                  className="w-full h-32 bg-navy border border-navy-light rounded-xl px-4 py-3 text-slate-lighter focus:outline-none focus:border-teal resize-none"
+                  maxLength={500}
+                  required
+                />
+                <div className="flex justify-end mt-1">
+                  <span
+                    className={`text-sm ${
+                      message.length > 450 ? "text-yellow-400" : "text-slate"
+                    }`}
+                  >
+                    {message.length}/500
+                  </span>
                 </div>
+              </div>
+
+              <div className="space-y-4 bg-navy border border-navy-light rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Clock size={16} className="text-slate" />
+                    <span className="text-sm text-slate">Message options</span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                  >
+                    {showAdvanced ? "Hide" : "Show"}
+                  </Button>
+                </div>
+
+                <AnimatePresence>
+                  {showAdvanced && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="space-y-4 pt-4 border-t border-navy-light"
+                    >
+                      {/* Image Upload Option */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <ImageIcon size={16} className="text-slate" />
+                          <span className="text-sm text-slate">Add image</span>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={options.hasImage}
+                            onChange={(e) => {
+                              setOptions({
+                                ...options,
+                                hasImage: e.target.checked,
+                                isTemporary: e.target.checked
+                                  ? true
+                                  : options.isTemporary,
+                              });
+                              if (!e.target.checked) setSelectedImage(null);
+                            }}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-navy-light peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate after:border-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
+                        </label>
+                      </div>
+
+                      {/* Show ImageUpload only if hasImage is true */}
+                      <AnimatePresence>
+                        {options.hasImage && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                          >
+                            <ImageUpload onImageSelect={setSelectedImage} />
+                            {options.hasImage && !options.isTemporary && (
+                              <div className="mt-2 flex items-center gap-2 text-yellow-400">
+                                <AlertCircle size={14} />
+                                <span className="text-sm">
+                                  Messages with images will automatically be
+                                  temporary
+                                </span>
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Temporary Message Toggle */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Clock size={16} className="text-slate" />
+                          <span className="text-sm text-slate">
+                            Make temporary
+                          </span>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={options.isTemporary}
+                            disabled={options.hasImage}
+                            onChange={(e) =>
+                              setOptions({
+                                ...options,
+                                isTemporary: e.target.checked,
+                              })
+                            }
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-navy-light peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate after:border-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
+                        </label>
+                      </div>
+
+                      {/* Conditional Options */}
+                      <AnimatePresence>
+                        {(options.isTemporary || options.hasPassword) && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="space-y-4"
+                          >
+                            {options.isTemporary && (
+                              <div className="space-y-2">
+                                <label className="block text-sm text-slate mb-2">
+                                  Message expires in
+                                </label>
+                                <ExpirationPicker
+                                  value={options.expiresIn}
+                                  onChange={(value) =>
+                                    setOptions({
+                                      ...options,
+                                      expiresIn: value,
+                                    })
+                                  }
+                                />
+                                {options.expiresIn && (
+                                  <p className="text-xs text-slate flex items-center gap-1.5">
+                                    <Clock size={12} />
+                                    Expires on{" "}
+                                    {formatExpirationTime(
+                                      parseFloat(options.expiresIn)
+                                    )}{" "}
+                                    {getTimeZoneAbbr()}
+                                  </p>
+                                )}
+                              </div>
+                            )}
+
+                            {options.hasPassword && (
+                              <div className="space-y-2">
+                                <div className="relative">
+                                  <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={options.password}
+                                    onChange={(e) =>
+                                      setOptions({
+                                        ...options,
+                                        password: e.target.value,
+                                      })
+                                    }
+                                    placeholder="Enter password"
+                                    className="w-full bg-navy-light border border-navy-light rounded-lg pl-3 pr-10 py-2 text-slate-lighter focus:outline-none focus:border-teal"
+                                    minLength={4}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setShowPassword(!showPassword)
+                                    }
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate hover:text-slate-lighter"
+                                  >
+                                    {showPassword ? (
+                                      <EyeOff size={16} />
+                                    ) : (
+                                      <Eye size={16} />
+                                    )}
+                                  </button>
+                                </div>
+                                <PasswordStrength password={options.password} />
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                      {/* Password Protection */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Lock size={16} className="text-slate" />
+                          <span className="text-sm text-slate">
+                            Add password
+                          </span>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={options.hasPassword}
+                            onChange={(e) =>
+                              setOptions({
+                                ...options,
+                                hasPassword: e.target.checked,
+                                password: e.target.checked
+                                  ? options.password
+                                  : "",
+                              })
+                            }
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-navy-light peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate after:border-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
+                        </label>
+                      </div>
+
+                      {/* Additional Options */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <MessageCircle size={16} className="text-slate" />
+                            <span className="text-sm text-slate">
+                              Allow replies
+                            </span>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={options.allowReplies}
+                              onChange={(e) =>
+                                setOptions({
+                                  ...options,
+                                  allowReplies: e.target.checked,
+                                })
+                              }
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-navy-light peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate after:border-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
+                          </label>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Eye size={16} className="text-slate" />
+                            <span className="text-sm text-slate">
+                              Notify on read
+                            </span>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={options.notifyOnRead}
+                              onChange={(e) =>
+                                setOptions({
+                                  ...options,
+                                  notifyOnRead: e.target.checked,
+                                })
+                              }
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-navy-light peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate after:border-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
+                          </label>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <div className="flex justify-between gap-3">
                 <Button
                   type="button"
                   variant="secondary"
-                  size="sm"
-                  onClick={() => setShowAdvanced(!showAdvanced)}
+                  onClick={() => setShowPreview(true)}
                 >
-                  {showAdvanced ? "Hide" : "Show"}
+                  Preview Message
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={
+                    !message.trim() ||
+                    isLoading ||
+                    (options.hasImage && !selectedImage)
+                  }
+                  loading={isLoading}
+                >
+                  Send Anonymously
                 </Button>
               </div>
-
-              <AnimatePresence>
-                {showAdvanced && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="space-y-4 pt-4 border-t border-navy-light"
-                  >
-                    {/* Image Upload Option */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <ImageIcon size={16} className="text-slate" />
-                        <span className="text-sm text-slate">Add image</span>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={options.hasImage}
-                          onChange={(e) => {
-                            setOptions({
-                              ...options,
-                              hasImage: e.target.checked,
-                              isTemporary: e.target.checked
-                                ? true
-                                : options.isTemporary,
-                            });
-                            if (!e.target.checked) setSelectedImage(null);
-                          }}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-navy-light peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate after:border-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
-                      </label>
-                    </div>
-
-                    {/* Show ImageUpload only if hasImage is true */}
-                    <AnimatePresence>
-                      {options.hasImage && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                        >
-                          <ImageUpload onImageSelect={setSelectedImage} />
-                          {options.hasImage && !options.isTemporary && (
-                            <div className="mt-2 flex items-center gap-2 text-yellow-400">
-                              <AlertCircle size={14} />
-                              <span className="text-sm">
-                                Messages with images will automatically be
-                                temporary
-                              </span>
-                            </div>
-                          )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    {/* Temporary Message Toggle */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Clock size={16} className="text-slate" />
-                        <span className="text-sm text-slate">
-                          Make temporary
-                        </span>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={options.isTemporary}
-                          disabled={options.hasImage}
-                          onChange={(e) =>
-                            setOptions({
-                              ...options,
-                              isTemporary: e.target.checked,
-                            })
-                          }
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-navy-light peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate after:border-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
-                      </label>
-                    </div>
-
-                    {/* Conditional Options */}
-                    <AnimatePresence>
-                      {(options.isTemporary || options.hasPassword) && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="space-y-4"
-                        >
-                          {options.isTemporary && (
-                            <div>
-                              <label className="block text-sm text-slate mb-2">
-                                Expires in
-                              </label>
-                              <select
-                                value={options.expiresIn}
-                                onChange={(e) =>
-                                  setOptions({
-                                    ...options,
-                                    expiresIn: e.target.value,
-                                  })
-                                }
-                                className="w-full bg-navy-light border border-navy-light rounded-lg px-3 py-2 text-slate-lighter focus:outline-none focus:border-teal"
-                              >
-                                <option value="1">1 hour</option>
-                                <option value="24">24 hours</option>
-                                <option value="48">48 hours</option>
-                                <option value="168">1 week</option>
-                              </select>
-                            </div>
-                          )}
-
-                          {options.hasPassword && (
-                            <div className="space-y-2">
-                              <div className="relative">
-                                <input
-                                  type={showPassword ? "text" : "password"}
-                                  value={options.password}
-                                  onChange={(e) =>
-                                    setOptions({
-                                      ...options,
-                                      password: e.target.value,
-                                    })
-                                  }
-                                  placeholder="Enter password"
-                                  className="w-full bg-navy-light border border-navy-light rounded-lg pl-3 pr-10 py-2 text-slate-lighter focus:outline-none focus:border-teal"
-                                  minLength={4}
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => setShowPassword(!showPassword)}
-                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate hover:text-slate-lighter"
-                                >
-                                  {showPassword ? (
-                                    <EyeOff size={16} />
-                                  ) : (
-                                    <Eye size={16} />
-                                  )}
-                                </button>
-                              </div>
-                              <PasswordStrength password={options.password} />
-                            </div>
-                          )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                    {/* Password Protection */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Lock size={16} className="text-slate" />
-                        <span className="text-sm text-slate">Add password</span>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={options.hasPassword}
-                          onChange={(e) =>
-                            setOptions({
-                              ...options,
-                              hasPassword: e.target.checked,
-                              password: e.target.checked
-                                ? options.password
-                                : "",
-                            })
-                          }
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-navy-light peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate after:border-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
-                      </label>
-                    </div>
-
-                    {/* Additional Options */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <MessageCircle size={16} className="text-slate" />
-                          <span className="text-sm text-slate">
-                            Allow replies
-                          </span>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={options.allowReplies}
-                            onChange={(e) =>
-                              setOptions({
-                                ...options,
-                                allowReplies: e.target.checked,
-                              })
-                            }
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-navy-light peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate after:border-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
-                        </label>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Eye size={16} className="text-slate" />
-                          <span className="text-sm text-slate">
-                            Notify on read
-                          </span>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={options.notifyOnRead}
-                            onChange={(e) =>
-                              setOptions({
-                                ...options,
-                                notifyOnRead: e.target.checked,
-                              })
-                            }
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-navy-light peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate after:border-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
-                        </label>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <div className="flex justify-between gap-3">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setShowPreview(true)}
-              >
-                Preview Message
-              </Button>
-              <Button
-                type="submit"
-                disabled={
-                  !message.trim() ||
-                  isLoading ||
-                  (options.hasImage && !selectedImage)
-                }
-                loading={isLoading}
-              >
-                Send Anonymously
-              </Button>
-            </div>
-          </form>
+            </form>
+          ) : (
+            <AnonymousPollForm username={username} />
+          )}
 
           {/* Features Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
@@ -446,8 +497,33 @@ export default function UserPublicPage() {
             imagePreview={
               selectedImage ? URL.createObjectURL(selectedImage) : null
             }
-            options={options}
+            options={{
+              ...options,
+              expirationTime: options.isTemporary
+                ? formatExpirationTime(parseFloat(options.expiresIn))
+                : undefined,
+            }}
           />
+
+          <ShareModal
+            isOpen={showShareModal}
+            onClose={() => setShowShareModal(false)}
+            username={username}
+            url={window.location.href}
+          />
+
+          {error && (
+            <div className="bg-red-500/10 border border-red-500 rounded-xl p-4 text-center">
+              <p className="text-red-500">{error}</p>
+              <Button
+                variant="secondary"
+                onClick={() => window.location.reload()}
+                className="mt-4"
+              >
+                Try Again
+              </Button>
+            </div>
+          )}
         </motion.div>
       </div>
     </main>
