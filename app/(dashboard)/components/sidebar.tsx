@@ -20,17 +20,17 @@ const navItems = [
   },
   {
     name: "Messages",
-    href: "/dashboard/messages",
+    href: "/messages",
     icon: MessageCircle,
   },
   {
     name: "Polls",
-    href: "/dashboard/polls",
+    href: "/polls",
     icon: BarChart2,
   },
   {
     name: "Settings",
-    href: "/dashboard/settings",
+    href: "/settings",
     icon: Settings,
   },
 ];
