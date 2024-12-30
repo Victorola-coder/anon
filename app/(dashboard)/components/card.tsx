@@ -5,9 +5,10 @@ interface CardProps {
   value: string;
   change: string;
   trend: "up" | "down";
+  icon?: React.ElementType;
 }
 
-export function Card({ title, value, change, trend }: CardProps) {
+export function Card({ title, value, change, trend, icon }: CardProps) {
   return (
     <div className="p-6 rounded-xl bg-navy border border-navy-light">
       <h3 className="text-sm font-medium text-slate">{title}</h3>
@@ -15,6 +16,7 @@ export function Card({ title, value, change, trend }: CardProps) {
         <span className="text-2xl font-semibold text-slate-lighter">
           {value}
         </span>
+
         <span
           className={clsx(
             "text-sm",

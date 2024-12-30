@@ -10,6 +10,7 @@ import {
   BarChart2,
   Settings,
   LogOut,
+  Sparkles,
 } from "lucide-react";
 
 const navItems = [
@@ -27,6 +28,11 @@ const navItems = [
     name: "Polls",
     href: "/polls",
     icon: BarChart2,
+  },
+  {
+    name: "Daily Prompts",
+    href: "/prompts",
+    icon: Sparkles,
   },
   {
     name: "Settings",
