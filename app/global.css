@@ -13,7 +13,8 @@ body {
   overflow-x: hidden;
   color: theme("colors.slate.lighter");
   font-family: var(--font-montserrat);
-  background-color: theme("colors.navy.DEFAULT");
+  /* background-color: theme("colors.navy.DEFAULT"); */
+  background-color: #061417;
 }
 
 body::-webkit-scrollbar {

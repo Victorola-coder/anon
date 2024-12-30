@@ -119,11 +119,12 @@ Anon is a modern web application designed for anonymous messaging and interactio
 
 ### Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
+- **Icons**: Lucide
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **State Management**: Zustand
 - **Animations**: Framer Motion
 - **Font**: Montserrat (Google Fonts)
+- **Framework**: Next.js 15 (App Router)
 
 By following these guidelines, we ensure that the Anon project maintains its high standards of code quality and user experience. Thank you for contributing!

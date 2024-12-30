@@ -28,3 +28,61 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
+
+interface Poll {
+  id: string;
+  question: string;
+  endsAt?: string;
+  createdAt: string;
+  totalVotes: number;
+  options: PollOption[];
+  status: "active" | "ended";
+}
+
+interface MessageOptions {
+  expiresIn: string;
+  password: string;
+  hasImage: boolean;
+  hasPassword: boolean;
+  isTemporary: boolean;
+  allowReplies: boolean;
+  notifyOnRead: boolean;
+  expirationTime?: string;
+}
+
+interface MessagePreviewModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  message: string;
+  imagePreview?: string | null;
+  options: {
+    isTemporary: boolean;
+    expiresIn: string;
+    hasPassword: boolean;
+    allowReplies: boolean;
+    expirationTime?: string;
+  };
+}
+
+interface PasswordStrengthProps {
+  password: string;
+}
+
+interface AnonymousPollFormProps {
+  username: string;
+}
+
+interface ShareModalProps {
+  url: string;
+  isOpen: boolean;
+  username: string;
+  onClose: () => void;
+}
+
+interface Prompt {
+  id: string;
+  date: string;
+  question: string;
+  responses: number;
+  expiresIn: string;
+}
