@@ -10,9 +10,10 @@
 }
 
 body {
-  color: white;
-  background-color: #0f0f0f;
   overflow-x: hidden;
+  color: theme("colors.slate.lighter");
+  font-family: var(--font-montserrat);
+  background-color: theme("colors.navy.DEFAULT");
 }
 
 body::-webkit-scrollbar {
@@ -25,7 +26,7 @@ body::-webkit-scrollbar-corner {
 
 /* scrollbar */
 body::-webkit-scrollbar-track {
-  @apply bg-primary;
+  @apply bg-navy-light;
 }
 
 body::-webkit-scrollbar-track-piece {
@@ -34,7 +35,7 @@ body::-webkit-scrollbar-track-piece {
 
 body::-webkit-scrollbar-thumb {
   @apply transition-all duration-500 
-  rounded-full bg-dark hover:bg-dark/60;
+  rounded-full bg-teal hover:bg-teal/60;
 }
 
 html.lenis {
@@ -69,6 +70,3 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
-
-
-

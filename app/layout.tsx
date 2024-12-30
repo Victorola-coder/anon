@@ -1,17 +1,12 @@
 import "./global.css";
-import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
 import { AOS } from "./components/global";
+import { Montserrat } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const viewport: Viewport = {
@@ -19,18 +14,17 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://nextapptemplate.xyz"),
+  metadataBase: new URL("https://Anon.xyz"),
   icons: {
     icon: "/icon.png",
   },
-  title: "nextjs template",
-  description:
-    "I fell in love with next.js, im trying to make a template for it also",
-  applicationName: "next Web Application",
-  authors: [{ name: "nextapp template", url: "https://domainname.host" }],
-  keywords: ["NextJs", "reactjs", "template", "typescript"],
-  creator: "VickyJay",
-  publisher: "VickyJay",
+  title: "Anon - Anonymous Messaging Platform",
+  description: "Share your thoughts freely and anonymously",
+  applicationName: "Anon - Anonymous Messaging Platform",
+  authors: [{ name: "Anon", url: "https://Anon.xyz" }],
+  keywords: ["Anon", "Anonymous", "Messaging", "Platform"],
+  creator: "Anon",
+  publisher: "Anon",
   generator: "Next.js",
   referrer: "origin",
   robots: {
@@ -39,39 +33,36 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    url: "https://domainname.host",
-    title: "Nextjs template",
-    siteName: "nextapp template",
+    url: "https://Anon.xyz",
+    title: "Anon - Anonymous Messaging Platform",
+    siteName: "Anon - Anonymous Messaging Platform",
     locale: "en_US",
     images: [
       {
-        url: "linktoopengraphimage.cdn",
+        url: "https://Anon.xyz/og.png",
         width: 1200,
         height: 630,
-        alt: "next OG Image",
+        alt: "Anon - Anonymous Messaging Platform",
       },
     ],
   },
   twitter: {
-    site: "nextapp",
+    site: "Anon",
     creator: "socialmediahandle",
-    title:
-      "nextapp template - I fell in love with next.js, im trying to make a template for it tooo",
-    description:
-      "I fell in love with next.js, im trying to make a template for it too",
+    title: "Anon - Anonymous Messaging Platform",
+    description: "Share your thoughts freely and anonymously",
     card: "summary_large_image",
-    images: ["linktoopengraph.com"],
+    images: ["https://Anon.xyz/og.png"],
   },
   appleWebApp: {
     capable: true,
-    title: "nextapp template",
+    title: "Anon - Anonymous Messaging Platform",
     statusBarStyle: "black-translucent",
   },
   formatDetection: {
     telephone: false,
   },
-  abstract:
-    "I fell in love with next.js, im trying to make a template for it tooo",
+  abstract: "Share your thoughts freely and anonymously",
   category: "Social",
   classification: "Social",
 };
@@ -83,9 +74,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${montserrat.variable} antialiased`}>
         <AOS />
         {children}
       </body>

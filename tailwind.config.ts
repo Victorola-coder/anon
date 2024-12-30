@@ -9,8 +9,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        // if you are using variable and want to use more than one fonts for your webapp,you could define it here. like i did 
-        geistSans: ["var(--font-geist-sans)"],
+        sans: ["var(--font-montserrat)"],
+        mon: ["var(--font-montserrat)"],
       },
       keyframes: {
         "fade-effect": {
@@ -78,9 +78,25 @@ const config: Config = {
           DEFAULT: "#E1DEF0",
           100: "#F3EFFD",
         },
+        navy: {
+          DEFAULT: "#0a192f",
+          light: "#112240",
+          dark: "#020c1b",
+        },
+        slate: {
+          DEFAULT: "#8892b0",
+          light: "#a8b2d1",
+          lighter: "#ccd6f6",
+          lightest: "#e6f1ff",
+        },
+        teal: {
+          DEFAULT: "#64ffda",
+          tint: "rgba(100, 255, 218, 0.1)",
+        },
       },
     },
   },
   plugins: [],
 };
+
 export default config;
