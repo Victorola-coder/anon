@@ -28,3 +28,13 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
+
+interface Poll {
+  id: string;
+  question: string;
+  options: PollOption[];
+  totalVotes: number;
+  status: "active" | "ended";
+  createdAt: string;
+  endsAt?: string;
+}

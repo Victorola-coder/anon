@@ -7,28 +7,19 @@ import {
   Plus,
   Calendar,
   Users,
-  MoreVertical,
   Edit2,
   Trash2,
   CheckCircle,
-  XCircle,
+  AlertCircle,
 } from "lucide-react";
 import Button from "@/app/components/ui/button";
+import { PollModal } from "../components/poll-modal";
+import { toast } from "sonner";
 
-interface PollOption {
+export interface PollOption {
   id: string;
   text: string;
   votes: number;
-}
-
-interface Poll {
-  id: string;
-  question: string;
-  options: PollOption[];
-  totalVotes: number;
-  status: "active" | "ended";
-  createdAt: string;
-  endsAt?: string;
 }
 
 export default function PollsPage() {
@@ -62,7 +53,32 @@ export default function PollsPage() {
   ]);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedPoll, setSelectedPoll] = useState<string | null>(null);
+  const [selectedPoll, setSelectedPoll] = useState<Poll | null>(null);
+  const [filter, setFilter] = useState<"all" | "active" | "ended">("all");
+
+  const handleCreatePoll = (pollData: Omit<Poll, "id" | "totalVotes">) => {
+    const newPoll = {
+      ...pollData,
+      id: String(polls.length + 1),
+      totalVotes: 0,
+    };
+    setPolls([newPoll, ...polls]);
+    toast.success("Poll created successfully!");
+  };
+
+  const handleUpdatePoll = (pollData: Omit<Poll, "id" | "totalVotes">) => {
+    if (!selectedPoll) return;
+
+    setPolls(
+      polls.map((poll) =>
+        poll.id === selectedPoll.id
+          ? { ...poll, ...pollData, totalVotes: poll.totalVotes }
+          : poll
+      )
+    );
+    setSelectedPoll(null);
+    toast.success("Poll updated successfully!");
+  };
 
   const handleEndPoll = (pollId: string) => {
     setPolls(
@@ -70,11 +86,19 @@ export default function PollsPage() {
         poll.id === pollId ? { ...poll, status: "ended" } : poll
       )
     );
+    toast.success("Poll ended successfully!");
   };
 
   const handleDeletePoll = (pollId: string) => {
     setPolls(polls.filter((poll) => poll.id !== pollId));
+    toast.success("Poll deleted successfully!");
   };
+
+  const filteredPolls = polls.filter((poll) => {
+    if (filter === "active") return poll.status === "active";
+    if (filter === "ended") return poll.status === "ended";
+    return true;
+  });
 
   return (
     <div className="space-y-6">
@@ -83,18 +107,35 @@ export default function PollsPage() {
           <h1 className="text-3xl font-bold text-slate-lighter">Polls</h1>
           <p className="text-slate mt-1">Create and manage your polls</p>
         </div>
-        <Button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus size={18} />
-          Create Poll
-        </Button>
+        <div className="flex items-center gap-4">
+          <div className="flex rounded-lg border border-navy-light overflow-hidden">
+            {(["all", "active", "ended"] as const).map((filterOption) => (
+              <button
+                key={filterOption}
+                onClick={() => setFilter(filterOption)}
+                className={`px-4 py-2 text-sm transition-colors ${
+                  filter === filterOption
+                    ? "bg-teal/10 text-teal"
+                    : "text-slate hover:bg-navy-light"
+                }`}
+              >
+                {filterOption.charAt(0).toUpperCase() + filterOption.slice(1)}
+              </button>
+            ))}
+          </div>
+          <Button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus size={18} />
+            Create Poll
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6">
         <AnimatePresence>
-          {polls.map((poll) => (
+          {filteredPolls.map((poll) => (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -114,7 +155,9 @@ export default function PollsPage() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar size={14} />
-                      <span>Ends {poll.endsAt}</span>
+                      <span>
+                        Ends {new Date(poll.endsAt!).toLocaleDateString()}
+                      </span>
                     </div>
                     <span
                       className={`px-2 py-0.5 rounded-full text-xs ${
@@ -129,28 +172,34 @@ export default function PollsPage() {
                 </div>
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   {poll.status === "active" && (
-                    <button
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       onClick={() => handleEndPoll(poll.id)}
-                      className="p-2 hover:bg-navy-light rounded-lg transition-colors text-slate"
-                      title="End Poll"
+                      className="flex items-center gap-1"
                     >
-                      <CheckCircle size={16} />
-                    </button>
+                      <CheckCircle size={14} />
+                      End Poll
+                    </Button>
                   )}
-                  <button
-                    onClick={() => setSelectedPoll(poll.id)}
-                    className="p-2 hover:bg-navy-light rounded-lg transition-colors text-slate"
-                    title="Edit Poll"
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setSelectedPoll(poll)}
+                    className="flex items-center gap-1"
                   >
-                    <Edit2 size={16} />
-                  </button>
-                  <button
+                    <Edit2 size={14} />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
                     onClick={() => handleDeletePoll(poll.id)}
-                    className="p-2 hover:bg-navy-light rounded-lg transition-colors text-slate"
-                    title="Delete Poll"
+                    className="flex items-center gap-1"
                   >
-                    <Trash2 size={16} />
-                  </button>
+                    <Trash2 size={14} />
+                    Delete
+                  </Button>
                 </div>
               </div>
 
@@ -176,13 +225,32 @@ export default function PollsPage() {
                   </div>
                 ))}
               </div>
+
+              {poll.totalVotes === 0 && (
+                <div className="mt-4 flex items-center gap-2 text-sm text-slate">
+                  <AlertCircle size={14} />
+                  <span>No votes yet</span>
+                </div>
+              )}
             </motion.div>
           ))}
         </AnimatePresence>
       </div>
 
-      {/* TODO: Add Create Poll Modal */}
-      {/* TODO: Add Edit Poll Modal */}
+      <PollModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={handleCreatePoll}
+      />
+
+      {selectedPoll && (
+        <PollModal
+          isOpen={true}
+          onClose={() => setSelectedPoll(null)}
+          onSubmit={handleUpdatePoll}
+          initialData={selectedPoll}
+        />
+      )}
     </div>
   );
 }
