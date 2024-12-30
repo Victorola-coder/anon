@@ -1,8 +1,5 @@
 "use client";
 
-interface PasswordStrengthProps {
-  password: string;
-}
 
 export function PasswordStrength({ password }: PasswordStrengthProps) {
   const getStrength = (pass: string): number => {

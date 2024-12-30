@@ -1,15 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Plus, Minus, Clock } from "lucide-react";
-import Button from "@/app/components/ui/button";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import Button from "@/app/components/ui/button";
+import { Plus, Minus, Clock } from "lucide-react";
 import { ExpirationPicker } from "./expiration-picker";
-
-interface AnonymousPollFormProps {
-  username: string;
-}
 
 export function AnonymousPollForm({ username }: AnonymousPollFormProps) {
   const [question, setQuestion] = useState("");

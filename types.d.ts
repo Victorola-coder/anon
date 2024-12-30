@@ -32,11 +32,11 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 interface Poll {
   id: string;
   question: string;
-  options: PollOption[];
-  totalVotes: number;
-  status: "active" | "ended";
-  createdAt: string;
   endsAt?: string;
+  createdAt: string;
+  totalVotes: number;
+  options: PollOption[];
+  status: "active" | "ended";
 }
 
 interface MessageOptions {
@@ -48,4 +48,41 @@ interface MessageOptions {
   allowReplies: boolean;
   notifyOnRead: boolean;
   expirationTime?: string;
+}
+
+interface MessagePreviewModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  message: string;
+  imagePreview?: string | null;
+  options: {
+    isTemporary: boolean;
+    expiresIn: string;
+    hasPassword: boolean;
+    allowReplies: boolean;
+    expirationTime?: string;
+  };
+}
+
+interface PasswordStrengthProps {
+  password: string;
+}
+
+interface AnonymousPollFormProps {
+  username: string;
+}
+
+interface ShareModalProps {
+  url: string;
+  isOpen: boolean;
+  username: string;
+  onClose: () => void;
+}
+
+interface Prompt {
+  id: string;
+  date: string;
+  question: string;
+  responses: number;
+  expiresIn: string;
 }

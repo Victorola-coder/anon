@@ -1,8 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { Modal } from "@/app/components/ui/modal";
-import { QRCodeSVG } from "qrcode.react";
 import {
   Copy,
   Share2,
@@ -11,21 +8,24 @@ import {
   Link,
   MessageCircle,
 } from "lucide-react";
-import Button from "@/app/components/ui/button";
 import { toast } from "sonner";
+import { useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
+import Button from "@/app/components/ui/button";
+import { Modal } from "@/app/components/ui/modal";
 
 interface ShareModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  username: string;
   url: string;
+  isOpen: boolean;
+  username: string;
+  onClose: () => void;
 }
 
 export function ShareModal({
   isOpen,
+  url,
   onClose,
   username,
-  url,
 }: ShareModalProps) {
   const [copied, setCopied] = useState(false);
 

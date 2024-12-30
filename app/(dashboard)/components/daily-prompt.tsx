@@ -6,14 +6,6 @@ import Button from "@/app/components/ui/button";
 import { Calendar, MessageCircle, Clock } from "lucide-react";
 import { PromptResponseModal } from "./prompt-response-modal";
 
-interface Prompt {
-  id: string;
-  date: string;
-  question: string;
-  responses: number;
-  expiresIn: string;
-}
-
 export function DailyPrompt() {
   const [prompt] = useState<Prompt>({
     id: "1",
