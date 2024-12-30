@@ -19,7 +19,7 @@ export default function Button({
   return (
     <button
       className={clsx(
-        "transition-all duration-300 active:scale-[0.97] rounded-[10px] font-medium disabled:cursor-not-allowed disabled:opacity-60",
+        "transition-all duration-300 active:scale-[0.97] rounded-[10px] font-medium disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-none",
         {
           "px-[21px] py-[12.5px] text-[18px]": size === "default",
           "px-3 py-2 text-sm": size === "sm",
