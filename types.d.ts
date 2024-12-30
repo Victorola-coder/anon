@@ -1,6 +1,7 @@
 // define your mf types here
-
 declare module "aos";
+
+declare module "*json";
 
 declare module "*.svg" {
   const content: string;
