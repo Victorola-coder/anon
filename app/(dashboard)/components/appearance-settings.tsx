@@ -3,6 +3,7 @@
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "@/app/providers/theme-provider";
 import Button from "@/app/components/ui/button";
+import { ThemePresets } from "./theme-presets";
 
 const themeColors = [
   { name: "teal", class: "bg-teal", preview: "#14b8a6" },
@@ -58,6 +59,14 @@ export function AppearanceSettings() {
             Dark
           </Button>
         </div>
+      </div>
+
+      {/* Theme Presets */}
+      <div>
+        <label className="block text-sm font-medium text-slate-lighter mb-3">
+          Theme Presets
+        </label>
+        <ThemePresets />
       </div>
 
       {/* Theme Colors */}
