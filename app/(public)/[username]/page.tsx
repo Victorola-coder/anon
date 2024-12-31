@@ -538,7 +538,7 @@ export default function UserPublicPage() {
                         </AnimatePresence>
                       </div>
 
-                      <div className="flex justify-between gap-3">
+                      <div className="flex flex-col md:flex-row justify-between gap-3">
                         <Button
                           type="button"
                           variant="secondary"
