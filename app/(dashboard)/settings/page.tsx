@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import Button from "@/app/components/ui/button";
 import { User, Bell, Lock, Palette } from "lucide-react";
+import Button from "@/app/components/ui/button";
+import { AppearanceSettings } from "../components/appearance-settings";
 
 const settingsSections = [
   {
@@ -34,6 +35,18 @@ const settingsSections = [
 
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState("profile");
+
+  const renderActiveSection = () => {
+    switch (activeSection) {
+      case "appearance":
+        return <AppearanceSettings />;
+      // Add other cases for different sections
+      default:
+        return (
+          <div className="text-slate">This section is under development</div>
+        );
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -70,7 +83,7 @@ export default function SettingsPage() {
           <p className="text-slate mb-6">
             {settingsSections.find((s) => s.id === activeSection)?.description}
           </p>
-          <Button>Save Changes</Button>
+          {renderActiveSection()}
         </div>
       </div>
     </div>

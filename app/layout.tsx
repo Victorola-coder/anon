@@ -3,6 +3,7 @@ import { Toaster } from "sonner";
 import { AOS } from "./components/global";
 import { Montserrat } from "next/font/google";
 import type { Metadata, Viewport } from "next";
+import { ThemeProvider } from "./providers/theme-provider";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -78,7 +79,7 @@ export default function RootLayout({
       <body className={`${montserrat.variable} antialiased`}>
         <Toaster richColors theme="dark" position="top-center" />
         <AOS />
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

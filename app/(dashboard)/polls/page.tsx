@@ -12,9 +12,9 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
+import { toast } from "sonner";
 import Button from "@/app/components/ui/button";
 import { PollModal } from "../components/poll-modal";
-import { toast } from "sonner";
 
 export interface PollOption {
   id: string;

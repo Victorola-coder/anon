@@ -364,7 +364,11 @@ export default function MessagesPage() {
                   <motion.div
                     key={message.id}
                     id={`message-${message.id}`}
-                    className="w-full aspect-square p-6 bg-navy border rounded-xl"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="w-full aspect-square p-6 bg-navy border rounded-xl cursor-pointer hover:border-teal transition-colors"
+                    onClick={() => handleMessageClick(message)}
                   >
                     <div className="h-full flex flex-col">
                       <span className="w-fit inline-block px-2 py-1 text-xs rounded-full bg-navy-light text-slate mb-3">
@@ -372,25 +376,54 @@ export default function MessagesPage() {
                       </span>
 
                       <div className="flex-1 overflow-hidden">
-                        {message.temporary?.hasImage ? (
-                          <div className="space-y-4">
-                            <div className="w-full h-[200px] rounded-lg overflow-hidden bg-navy-light">
-                              <img
-                                src={message.temporary.imageUrl}
-                                alt="Message attachment"
-                                className="w-full h-full object-cover"
+                        {message.hasPassword && !message.read ? (
+                          <div className="h-full flex items-center justify-center">
+                            <div className="text-center">
+                              <Lock
+                                size={24}
+                                className="text-slate mb-2 mx-auto"
                               />
-                            </div>
-                            {message.content && (
-                              <p className="text-slate-lighter text-lg line-clamp-3">
-                                {message.content}
+                              <p className="text-slate text-sm">
+                                Password Protected
                               </p>
-                            )}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedMessage(message);
+                                  setShowPasswordModal(true);
+                                }}
+                                className="mt-4 px-4 py-2 bg-navy-light rounded-lg text-slate-lighter hover:bg-navy-lighter transition-colors"
+                              >
+                                Unlock Message
+                              </button>
+                            </div>
                           </div>
                         ) : (
-                          <p className="text-slate-lighter text-xl leading-relaxed whitespace-pre-wrap">
-                            {message.content}
-                          </p>
+                          <div className="h-full flex flex-col">
+                            {message.temporary?.hasImage && (
+                              <div className="mb-4 relative w-full h-[200px] rounded-lg overflow-hidden bg-navy-light group">
+                                <img
+                                  src={message.temporary.imageUrl}
+                                  alt="Message attachment"
+                                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                  <ImageIcon className="text-white" size={24} />
+                                </div>
+                              </div>
+                            )}
+                            <div
+                              className={
+                                message.temporary?.hasImage
+                                  ? "flex-1"
+                                  : "h-full"
+                              }
+                            >
+                              <p className="text-slate-lighter text-xl leading-relaxed whitespace-pre-wrap">
+                                {message.content}
+                              </p>
+                            </div>
+                          </div>
                         )}
                       </div>
 
@@ -409,20 +442,10 @@ export default function MessagesPage() {
 
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2 text-slate text-sm">
-                            {message.temporary && (
-                              <span className="inline-flex items-center gap-1">
-                                <Clock size={14} />
-                              </span>
-                            )}
-                            {message.hasPassword && (
-                              <span className="inline-flex items-center gap-1">
-                                <Lock size={14} />
-                              </span>
-                            )}
+                            {message.temporary && <Clock size={14} />}
+                            {message.hasPassword && <Lock size={14} />}
                             {message.temporary?.hasImage && (
-                              <span className="inline-flex items-center gap-1">
-                                <ImageIcon size={14} />
-                              </span>
+                              <ImageIcon size={14} />
                             )}
                           </div>
 
@@ -438,10 +461,6 @@ export default function MessagesPage() {
                                 message.starred
                                   ? "text-yellow-500"
                                   : "text-slate hover:text-slate-lighter"
-                              } ${
-                                loadingStates[`star-${message.id}`]
-                                  ? "opacity-50"
-                                  : ""
                               }`}
                             >
                               {loadingStates[`star-${message.id}`] ? (
@@ -459,11 +478,7 @@ export default function MessagesPage() {
                                 deleteMessage(message.id);
                               }}
                               disabled={loadingStates[`delete-${message.id}`]}
-                              className={`p-2 rounded-lg text-slate hover:text-slate-lighter ${
-                                loadingStates[`delete-${message.id}`]
-                                  ? "opacity-50"
-                                  : ""
-                              }`}
+                              className="p-2 rounded-lg text-slate hover:text-slate-lighter"
                             >
                               {loadingStates[`delete-${message.id}`] ? (
                                 <div className="animate-spin h-4 w-4 border-2 border-slate rounded-full border-t-transparent" />
@@ -477,24 +492,10 @@ export default function MessagesPage() {
                                 e.stopPropagation();
                                 if (loadingStates[`download-${message.id}`])
                                   return;
-                                if (
-                                  message.temporary?.hasImage &&
-                                  message.temporary.imageUrl
-                                ) {
-                                  downloadImage(
-                                    message.temporary.imageUrl,
-                                    message.id
-                                  );
-                                } else {
-                                  downloadMessageAsImage(message.id);
-                                }
+                                downloadMessageAsImage(message.id);
                               }}
                               disabled={loadingStates[`download-${message.id}`]}
-                              className={`p-2 rounded-lg text-slate hover:text-slate-lighter ${
-                                loadingStates[`download-${message.id}`]
-                                  ? "opacity-50"
-                                  : ""
-                              }`}
+                              className="p-2 rounded-lg text-slate hover:text-slate-lighter"
                             >
                               {loadingStates[`download-${message.id}`] ? (
                                 <div className="animate-spin h-4 w-4 border-2 border-slate rounded-full border-t-transparent" />
