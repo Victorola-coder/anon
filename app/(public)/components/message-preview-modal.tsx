@@ -15,9 +15,9 @@ export function MessagePreviewModal({
   onClose,
   message,
   options,
-  imagePreview,
+  image,
 }: MessagePreviewModalProps) {
-  const hasContent = message.trim().length > 0 || imagePreview;
+  const hasContent = message.trim().length > 0 || image;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Message Preview">
@@ -26,10 +26,10 @@ export function MessagePreviewModal({
           <div className="bg-navy border border-navy-light rounded-xl p-4">
             <p className="text-slate-lighter whitespace-pre-wrap">{message}</p>
 
-            {imagePreview && (
+            {image && (
               <div className="mt-4">
                 <img
-                  src={imagePreview}
+                  src={image}
                   alt="Preview"
                   className="w-full max-h-64 object-cover rounded-lg"
                 />

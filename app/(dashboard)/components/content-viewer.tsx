@@ -15,42 +15,6 @@ import {
 import Button from "@/app/components/ui/button";
 import { ExpirationDisplay } from "@/app/(public)/components/expiration-display";
 
-interface ContentViewerProps {
-  type: "message" | "poll";
-  data: Message | Poll;
-  onDelete: (id: string) => void;
-  onToggleStar?: (id: string) => void;
-  onShare?: (id: string) => void;
-}
-
-interface Message {
-  id: string;
-  content: string;
-  timestamp: string;
-  read: boolean;
-  starred: boolean;
-  temporary?: {
-    expiresAt: string;
-    hasImage?: boolean;
-  };
-  hasPassword?: boolean;
-  imageUrl?: string;
-}
-
-interface Poll {
-  id: string;
-  question: string;
-  options: Array<{
-    id: string;
-    text: string;
-    votes: number;
-  }>;
-  totalVotes: number;
-  createdAt: string;
-  endsAt: string;
-  status: "active" | "ended";
-}
-
 export function ContentViewer({
   type,
   data,
@@ -62,7 +26,7 @@ export function ContentViewer({
 
   const handleDelete = () => {
     setShowConfirmDelete(false);
-    onDelete(data.id);
+    onDelete((data as Message)._id);
   };
 
   return (
@@ -78,9 +42,9 @@ export function ContentViewer({
           <p className="text-slate-lighter whitespace-pre-wrap">
             {(data as Message).content}
           </p>
-          {(data as Message).imageUrl && (
+          {(data as Message).image && (
             <img
-              src={(data as Message).imageUrl}
+              src={(data as Message).image}
               alt="Message attachment"
               className="w-full max-h-64 object-cover rounded-lg"
             />
@@ -124,9 +88,9 @@ export function ContentViewer({
             <Button
               size="sm"
               variant="secondary"
-              onClick={() => onToggleStar(data.id)}
+              onClick={() => onToggleStar((data as Message)._id)}
               className={`text-slate hover:text-yellow-400 ${
-                (data as Message).starred ? "text-yellow-400" : ""
+                (data as Message).isStarred ? "text-yellow-400" : ""
               }`}
             >
               <Star size={16} />
@@ -136,7 +100,7 @@ export function ContentViewer({
             <Button
               size="sm"
               variant="secondary"
-              onClick={() => onShare(data.id)}
+              onClick={() => onShare((data as Message)._id)}
               className="text-slate hover:text-slate-lighter"
             >
               <Share2 size={16} />
@@ -145,9 +109,9 @@ export function ContentViewer({
         </div>
 
         <div className="flex items-center gap-4">
-          {type === "message" && (data as Message).temporary && (
+          {type === "message" && (data as Message).isTemporary && (
             <ExpirationDisplay
-              expiresAt={(data as Message).temporary!.expiresAt}
+              expiresAt={(data as Message).expiresAt!.toISOString()}
             />
           )}
           {type === "poll" && (

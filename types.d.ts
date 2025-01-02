@@ -32,7 +32,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 interface Poll {
   id: string;
   question: string;
-  endsAt?: string;
+  endsAt: string;
   createdAt: string;
   totalVotes: number;
   options: PollOption[];
@@ -40,27 +40,35 @@ interface Poll {
 }
 
 interface MessageOptions {
-  expiresIn: string;
-  password: string;
-  hasImage: boolean;
-  hasPassword: boolean;
   isTemporary: boolean;
+  expiresIn: string;
+  hasPassword: boolean;
+  password: string;
   allowReplies: boolean;
   notifyOnRead: boolean;
-  expirationTime?: string;
+  type:
+    | "anon"
+    | "confession"
+    | "3words"
+    | "tbh"
+    | "dealbreaker"
+    | "pickupline"
+    | "appreciation"
+    | "feedback"
+    | "question";
 }
 
 interface MessagePreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   message: string;
-  imagePreview?: string | null;
+  image?: string;
   options: {
     isTemporary: boolean;
     expiresIn: string;
     hasPassword: boolean;
     allowReplies: boolean;
-    expirationTime?: string;
+    type: Message["type"];
   };
 }
 
@@ -85,4 +93,65 @@ interface Prompt {
   question: string;
   responses: number;
   expiresIn: string;
+}
+
+interface Message {
+  _id: string;
+  content: string;
+  creator: string;
+  creatorName: string;
+  type:
+    | "anon"
+    | "confession"
+    | "3words"
+    | "tbh"
+    | "dealbreaker"
+    | "pickupline"
+    | "appreciation"
+    | "feedback"
+    | "question";
+  isRead: boolean;
+  isStarred: boolean;
+  isTemporary?: boolean;
+  expiresAt?: Date;
+  image?: string;
+  hasPassword: boolean;
+  password?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface User {
+  _id: string;
+  username: string;
+  age: number; // Validated 18+
+  profileUrl?: string; // Display Picture URL
+
+  // Optional fields (updateable via profile)
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+}
+
+interface ContentViewerProps {
+  type: "message" | "poll";
+  data: Message | Poll;
+  onDelete: (id: string) => void;
+  onToggleStar?: (id: string) => void;
+  onShare?: (id: string) => void;
+}
+
+interface Poll {
+  id: string;
+  question: string;
+  options: Array<{
+    id: string;
+    text: string;
+    votes: number;
+  }>;
+  totalVotes: number;
+  createdAt: string;
+  endsAt: string;
+  status: "active" | "ended";
 }
