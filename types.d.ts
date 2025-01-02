@@ -41,21 +41,14 @@ interface Poll {
 
 interface MessageOptions {
   isTemporary: boolean;
+  expirationTime?: string | Date;
   expiresIn: string;
   hasPassword: boolean;
   password: string;
+  hasImage?: boolean;
   allowReplies: boolean;
   notifyOnRead: boolean;
-  type:
-    | "anon"
-    | "confession"
-    | "3words"
-    | "tbh"
-    | "dealbreaker"
-    | "pickupline"
-    | "appreciation"
-    | "feedback"
-    | "question";
+  type: Message["type"];
 }
 
 interface MessagePreviewModalProps {
@@ -63,13 +56,7 @@ interface MessagePreviewModalProps {
   onClose: () => void;
   message: string;
   image?: string;
-  options: {
-    isTemporary: boolean;
-    expiresIn: string;
-    hasPassword: boolean;
-    allowReplies: boolean;
-    type: Message["type"];
-  };
+  options: MessageOptions;
 }
 
 interface PasswordStrengthProps {
