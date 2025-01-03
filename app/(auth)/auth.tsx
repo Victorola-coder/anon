@@ -9,6 +9,7 @@ import Input from "@/app/components/ui/input";
 import { useRouter } from "next-nprogress-bar";
 import { ANON_SERVER_URL } from "@/app/constants";
 import { useAuthStore } from "@/app/store/useAuth";
+import { validations } from "@/app/lib/validations";
 
 interface AuthFormProps {
   route: "sign-in" | "sign-up";
@@ -90,21 +91,10 @@ export default function AuthForm({ route }: AuthFormProps) {
     }
   };
 
-  const validUsername = (username: string) => {
-    const usernameRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return usernameRegex.test(username);
-  };
-
-  const validPassword = (password: string) => {
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return passwordRegex.test(password);
-  };
-
   const isDisabled =
-    !validUsername(formData.username) ||
-    !validPassword(formData.password) ||
-    (route === "sign-up" && formData.age < 18);
+    !validations.username(formData.username).isValid ||
+    !validations.password(formData.password).isValid ||
+    (route === "sign-up" && !validations.age(formData.age).isValid);
 
   return (
     <motion.div

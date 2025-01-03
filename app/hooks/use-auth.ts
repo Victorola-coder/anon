@@ -1,5 +1,7 @@
 import { ANON_SERVER_URL } from "@/app/constants";
 import { useAuthStore } from "@/app/store/useAuth";
+import { toast } from "sonner";
+import { handleApiError } from "@/app/lib/handle-error";
 
 export const useAuth = () => {
   const { setUser, setToken, setLoading, logout } = useAuthStore();
@@ -60,10 +62,36 @@ export const useAuth = () => {
     }
   };
 
+  const requestPasswordReset = async (username: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${ANON_SERVER_URL}/api/user/reset-password`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username }),
+        }
+      );
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+
+      toast.success("Password reset instructions sent to your email");
+      return data;
+    } catch (error) {
+      handleApiError(error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     signIn,
     signUp,
     logout,
     refreshAccessToken,
+    requestPasswordReset,
   };
 };

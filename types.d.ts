@@ -142,3 +142,21 @@ interface Poll {
   endsAt: string;
   status: "active" | "ended";
 }
+
+interface ApiResponse<T> {
+  status: string;
+  message: string;
+  data?: T;
+}
+
+interface AuthResponse
+  extends ApiResponse<{
+    user: User;
+    token: string;
+    refreshToken: string;
+  }> {}
+
+interface ResetPasswordResponse
+  extends ApiResponse<{
+    message: string;
+  }> {}

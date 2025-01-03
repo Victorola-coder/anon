@@ -1,6 +1,5 @@
 import React from "react";
 import { Metadata } from "next";
-import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import { ANON_SERVER_URL } from "@/app/constants";
 import SaveUserToState from "./components/saveUserToState";
 
