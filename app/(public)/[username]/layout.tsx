@@ -6,8 +6,8 @@ import SaveUserToState from "./components/saveUserToState";
 type Params = Promise<{ username: string }>;
 
 interface LayoutProps {
-  children: React.ReactNode;
   params: Params;
+  children: React.ReactNode;
 }
 
 const getUserByUsername = async (slug: string) => {

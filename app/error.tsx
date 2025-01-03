@@ -38,7 +38,7 @@ export default function NotFound() {
 
           <Link
             href="/"
-            className="relative z-40 cursor-pointer w-[142px] mt-4 md:mt-[27px] mx-auto block bg-gradient-to-l from-[#D9D9D9] to-[#D9D9D900] pt-0.5 pr-0.5"
+            className="relative z-40 cursor-pointer w-fit mt-4 md:mt-[27px] mx-auto block bg-gradient-to-l from-[#D9D9D9] to-[#D9D9D900] pt-0.5 pr-0.5"
           >
             <motion.button
               whileTap={{ scale: 1.1 }}
