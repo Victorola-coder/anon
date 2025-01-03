@@ -9,7 +9,9 @@ import Input from "@/app/components/ui/input";
 import { useRouter } from "next-nprogress-bar";
 import { ANON_SERVER_URL } from "@/app/constants";
 import { useAuthStore } from "@/app/store/useAuth";
-import { validations } from "@/app/lib/validations";
+// import { validations } from "@/app/lib/validations";
+import { PasswordStrength } from "@/app/components/password-strength";
+import { validations } from "../lib/validations";
 
 interface FormData {
   age: number;
@@ -34,8 +36,40 @@ export default function AuthForm({ route }: AuthFormProps) {
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
+  // TODO: add validation and make it work properly and other commented codes
+
+  // const validateForm = () => {
+  //   const errors: FormErrors = {};
+
+  //   const usernameValidation = validations.username(formData.username);
+  //   if (!usernameValidation.isValid) {
+  //     errors.username = usernameValidation.message;
+  //   }
+
+  //   const passwordValidation = validations.password(formData.password);
+  //   if (!passwordValidation.isValid) {
+  //     errors.password = passwordValidation.message;
+  //   }
+
+  //   if (route === "sign-up") {
+  //     const ageValidation = validations.age(formData.age);
+  //     if (!ageValidation.isValid) {
+  //       errors.age = ageValidation.message;
+  //     }
+  //   }
+
+  //   setErrors(errors);
+  //   return Object.keys(errors).length === 0;
+  // };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // if (!validateForm()) {
+    //   toast.error("Please fix the form errors");
+    //   return;
+    // }
+
     setLoading(true);
 
     try {
@@ -94,10 +128,10 @@ export default function AuthForm({ route }: AuthFormProps) {
     }
   };
 
-  const isDisabled =
-    !validations.username(formData.username).isValid ||
-    !validations.password(formData.password).isValid ||
-    (route === "sign-up" && !validations.age(formData.age).isValid);
+  // const isDisabled =
+  //   !validations.username(formData.username).isValid ||
+  //   !validations.password(formData.password).isValid ||
+  // (route === "sign-up" && !validations.age(formData.age).isValid);
 
   return (
     <motion.div
@@ -120,8 +154,9 @@ export default function AuthForm({ route }: AuthFormProps) {
         <fieldset>
           <Input
             id="username"
+            name="username"
             type="text"
-            required
+            // required
             label="Username"
             value={formData.username}
             error={errors.username}
@@ -142,7 +177,7 @@ export default function AuthForm({ route }: AuthFormProps) {
         {route === "sign-up" && (
           <fieldset>
             <Input
-              required
+              // required
               id="age"
               type="number"
               label="Age"
@@ -183,6 +218,7 @@ export default function AuthForm({ route }: AuthFormProps) {
             className="mt-1"
             placeholder="lowercase, uppercase, number, special char, min 8 chars"
           />
+          <PasswordStrength password={formData.password} />
         </fieldset>
 
         <Button

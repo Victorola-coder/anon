@@ -1,9 +1,10 @@
 export const validations = {
   username: (username: string) => {
-    const usernameRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const usernameRegex = /^[a-zA-Z0-9]{3,8}$/;
     return {
       isValid: usernameRegex.test(username),
-      message: "Please enter a valid email address",
+      message:
+        "Username must be 3-8 characters long and contain only letters and numbers",
     };
   },
 
