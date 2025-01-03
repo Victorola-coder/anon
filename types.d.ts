@@ -32,7 +32,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 interface Poll {
   id: string;
   question: string;
-  endsAt: string;
+  endsAt?: string;
   createdAt: string;
   totalVotes: number;
   options: PollOption[];

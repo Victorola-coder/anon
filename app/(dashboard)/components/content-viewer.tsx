@@ -116,7 +116,7 @@ export function ContentViewer({
           )}
           {type === "poll" && (
             <ExpirationDisplay
-              expiresAt={(data as Poll).endsAt}
+              expiresAt={(data as Poll).endsAt ?? ""}
               showIcon={false}
             />
           )}
