@@ -15,42 +15,15 @@ interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
-  refreshToken: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
   setUser: (user: User | null) => void;
-  setToken: (token: string | null, refreshToken: string | null) => void;
-  setLoading: (isLoading: boolean) => void;
-  logout: () => void;
+  setToken: (token: string, refreshToken?: string) => void;
+  clearAuth: () => void;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      user: null,
-      token: null,
-      refreshToken: null,
-      isAuthenticated: false,
-      isLoading: false,
-      setUser: (user) => set({ user, isAuthenticated: !!user }),
-      setToken: (token, refreshToken) => set({ token, refreshToken }),
-      setLoading: (isLoading) => set({ isLoading }),
-      logout: () =>
-        set({
-          user: null,
-          token: null,
-          refreshToken: null,
-          isAuthenticated: false,
-        }),
-    }),
-    {
-      name: "auth-storage",
-      partialize: (state) => ({
-        user: state.user,
-        token: state.token,
-        refreshToken: state.refreshToken,
-        isAuthenticated: state.isAuthenticated,
-      }),
-    }
-  )
-);
+export const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  token: null,
+  setUser: (user) => set({ user }),
+  setToken: (token) => set({ token }),
+  clearAuth: () => set({ user: null, token: null }),
+}));

@@ -7,7 +7,7 @@ export const validations = {
     return {
       isValid: usernameRegex.test(username),
       message:
-        "Username must be 3-8 characters long and contain only letters and numbers",
+        "must be 3-8 characters long and contain only letters and numbers and no whitespace / special characters",
     };
   },
 

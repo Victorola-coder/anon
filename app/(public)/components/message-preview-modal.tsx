@@ -21,10 +21,10 @@ export function MessagePreviewModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Message Preview">
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-full">
         {hasContent ? (
-          <div className="bg-navy border border-navy-light rounded-xl p-4">
-            <p className="text-slate-lighter text-wrap break-words">
+          <div className="bg-navy border border-navy-light rounded-xl p-4 overflow-hidden">
+            <p className="text-slate-lighter whitespace-pre-wrap break-words">
               {message}
             </p>
 

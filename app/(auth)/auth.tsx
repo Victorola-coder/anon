@@ -71,12 +71,6 @@ export default function AuthForm({ route }: AuthFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // if (!validateForm()) {
-    //   toast.error("Please fix the form errors");
-    //   return;
-    // }
-
     setLoading(true);
 
     try {
@@ -101,6 +95,7 @@ export default function AuthForm({ route }: AuthFormProps) {
       });
 
       const data = await response.json();
+      console.log("Auth Response:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "Authentication failed");
@@ -108,22 +103,17 @@ export default function AuthForm({ route }: AuthFormProps) {
 
       if (route === "sign-in") {
         setUser(data.user);
-        setToken(data.token, data.refreshToken);
-      }
+        setToken(data.token);
 
-      toast.success(
-        route === "sign-up"
-          ? "Account created successfully!"
-          : "Signed in successfully!"
-      );
-
-      if (route === "sign-in") {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
+
+        toast.success("Signed in successfully!");
         router.push("/dashboard");
+      } else {
+        toast.success("Account created successfully!");
+        router.push("/signin");
       }
-      localStorage.setItem("token", data.token);
-      router.push(route === "sign-up" ? "/signin" : "/dashboard");
     } catch (error) {
       toast.error(
         error instanceof Error
