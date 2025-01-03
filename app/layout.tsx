@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     images: [
       {
-        url: "https://anon.victorola.me/images/lolo.jpg",
+        url: "https://anon.victorola.me/images/og.png",
         width: 1200,
         height: 630,
         alt: "Anon - Anonymous Messaging Platform",
