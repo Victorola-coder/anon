@@ -16,14 +16,14 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://Anon.xyz"),
+  metadataBase: new URL("https://anon.victorola.me"),
   icons: {
     icon: "/icon.png",
   },
   title: "Anon - Anonymous Messaging Platform",
   description: "Share your thoughts freely and anonymously",
   applicationName: "Anon - Anonymous Messaging Platform",
-  authors: [{ name: "Anon", url: "https://Anon.xyz" }],
+  authors: [{ name: "Anon", url: "https://anon.victorola.me" }],
   keywords: ["Anon", "Anonymous", "Messaging", "Platform"],
   creator: "Anon",
   publisher: "Anon",
@@ -35,13 +35,13 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    url: "https://Anon.xyz",
+    url: "https://anon.victorola.mevictorola.me",
     title: "Anon - Anonymous Messaging Platform",
     siteName: "Anon - Anonymous Messaging Platform",
     locale: "en_US",
     images: [
       {
-        url: "https://Anon.xyz/og.png",
+        url: "https://anon.victorola.me/images/lolo.jpg",
         width: 1200,
         height: 630,
         alt: "Anon - Anonymous Messaging Platform",
@@ -50,11 +50,11 @@ export const metadata: Metadata = {
   },
   twitter: {
     site: "Anon",
-    creator: "socialmediahandle",
+    creator: "victorola",
     title: "Anon - Anonymous Messaging Platform",
     description: "Share your thoughts freely and anonymously",
     card: "summary_large_image",
-    images: ["https://Anon.xyz/og.png"],
+    images: ["https://anon.victorola.me/images/lolo.jpg"],
   },
   appleWebApp: {
     capable: true,

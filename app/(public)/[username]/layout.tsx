@@ -43,7 +43,7 @@ export async function generateMetadata({
     openGraph: {
       title: `${user.username} | Anonymous`,
       description: `Send me a secret anonymous message.`,
-      url: `https://anon.xyz/${user.username}`,
+      url: `https://anon.victorola.me/${user.username}`,
       siteName: "Anon",
       images: [
         {
