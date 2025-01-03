@@ -3,7 +3,12 @@ import { Metadata } from "next";
 import { ANON_SERVER_URL } from "@/app/constants";
 import SaveUserToState from "./components/saveUserToState";
 
-type Params = { username: string };
+interface LayoutProps {
+  children: React.ReactNode;
+  params: {
+    username: string;
+  };
+}
 
 const getUserByUsername = async (slug: string) => {
   const response = await fetch(`${ANON_SERVER_URL}/api/user/${slug}`, {
@@ -19,25 +24,14 @@ const getUserByUsername = async (slug: string) => {
     throw new Error("Failed to fetch user");
   }
   const jsonResponse = await response.json();
-
-  console.log({ jsonResponse });
-
   if (!jsonResponse.data) {
     throw new Error("User not available");
   }
-
   return jsonResponse.data as User;
 };
 
-interface LayoutProps {
-  children: React.ReactNode;
-  params: { username: string };
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: { username: string };
+export async function generateMetadata(params: {
+  username: string;
 }): Promise<Metadata> {
   const { username } = params;
   const user = await getUserByUsername(username);
@@ -51,9 +45,7 @@ export async function generateMetadata({
       siteName: "Anon",
       images: [
         {
-          url:
-            user.profileUrl ??
-            "https://www.google.com/url?sa=i&url=https%3A%2F%2Fventurebeat.com%2Fmarketing%2Fthe-anonymous-user-5-steps-to-engage-them-convert-them-and-grow-revenue%2F&psig=AOvVaw0ocIbkpotBpS56ySzRRG58&ust=1735953028781000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCJjlqo6v2IoDFQAAAAAdAAAAABAI",
+          url: user.profileUrl ?? "https://example.com/default-profile.png",
           width: 1000,
           height: 1000,
         },
@@ -66,10 +58,7 @@ export async function generateMetadata({
       title: `${user.username} | Anonymous`,
       description: `Send me a secret anonymous message.`,
       creator: "Adesokan Emmanuel (devFemzy)",
-      images: [
-        user.profileUrl ??
-          "https://www.google.com/url?sa=i&url=https%3A%2F%2Fventurebeat.com%2Fmarketing%2Fthe-anonymous-user-5-steps-to-engage-them-convert-them-and-grow-revenue%2F&psig=AOvVaw0ocIbkpotBpS56ySzRRG58&ust=1735953028781000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCJjlqo6v2IoDFQAAAAAdAAAAABAI",
-      ],
+      images: [user.profileUrl ?? "https://example.com/default-profile.png"],
     },
   };
 }
