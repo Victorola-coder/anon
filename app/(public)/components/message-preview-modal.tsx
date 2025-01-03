@@ -24,7 +24,9 @@ export function MessagePreviewModal({
       <div className="space-y-6">
         {hasContent ? (
           <div className="bg-navy border border-navy-light rounded-xl p-4">
-            <p className="text-slate-lighter whitespace-pre-wrap">{message}</p>
+            <p className="text-slate-lighter text-wrap break-words">
+              {message}
+            </p>
 
             {image && (
               <div className="mt-4">

@@ -42,7 +42,7 @@ export async function generateMetadata({
     description: `Send me a secret anonymous message.`,
     openGraph: {
       title: `${user.username} | Anonymous`,
-      description: `Send me a secret anonymous message.`,
+      description: `Send ${user.username} a secret anonymous message.`,
       url: `https://anon.victorola.me/${user.username}`,
       siteName: "Anon",
       images: [
@@ -58,7 +58,7 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       title: `${user.username} | Anonymous`,
-      description: `Send me a secret anonymous message.`,
+      description: `Send ${user.username} a secret anonymous message.`,
       creator: "@devFemzy",
       images: [user.profileUrl ?? "https://example.com/default-profile.png"],
     },
