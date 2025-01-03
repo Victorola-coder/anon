@@ -214,7 +214,7 @@ export default function UserPublicPage() {
                   </button>
                 </div>
 
-                <div className="flex items-center justify-center gap-4 mt-6">
+                {/* <div className="flex items-center justify-center gap-4 mt-6">
                   <Button
                     type="button"
                     variant={mode === "message" ? "default" : "secondary"}
@@ -233,7 +233,7 @@ export default function UserPublicPage() {
                     <BarChart2 size={16} />
                     Create Poll
                   </Button>
-                </div>
+                </div> */}
 
                 {!isPageLoading && !error && !username && (
                   <div className="text-center space-y-4 p-8">
