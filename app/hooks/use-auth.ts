@@ -1,5 +1,5 @@
 import { ANON_SERVER_URL } from "@/app/constants";
-import { useAuthStore } from "@/app/store/use-auth-store";
+import { useAuthStore } from "@/app/store/useAuth";
 
 export const useAuth = () => {
   const { setUser, setToken, setLoading, logout } = useAuthStore();

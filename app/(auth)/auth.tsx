@@ -63,7 +63,7 @@ export default function AuthForm({ route }: AuthFormProps) {
 
       if (route === "sign-in") {
         setUser(data.user);
-        setToken(data.token);
+        setToken(data.token, data.refreshToken);
       }
 
       toast.success(

@@ -7,7 +7,7 @@ export function middleware(request: NextRequest) {
   const isDashboardPage = request.nextUrl.pathname.startsWith("/dashboard");
 
   if (isDashboardPage && !token) {
-    return NextResponse.redirect(new URL("/sign-in", request.url));
+    return NextResponse.redirect(new URL("/signin", request.url));
   }
 
   if (isAuthPage && token) {
@@ -18,5 +18,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/sign-in", "/sign-up"],
+  matcher: ["/dashboard/:path*", "/signin", "/signup"],
 };
