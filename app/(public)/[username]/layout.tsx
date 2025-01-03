@@ -3,11 +3,11 @@ import { Metadata } from "next";
 import { ANON_SERVER_URL } from "@/app/constants";
 import SaveUserToState from "./components/saveUserToState";
 
+type Params = Promise<{ username: string }>;
+
 interface LayoutProps {
   children: React.ReactNode;
-  params: {
-    username: string;
-  };
+  params: Params;
 }
 
 const getUserByUsername = async (slug: string) => {
@@ -30,10 +30,12 @@ const getUserByUsername = async (slug: string) => {
   return jsonResponse.data as User;
 };
 
-export async function generateMetadata(params: {
-  username: string;
+export async function generateMetadata({
+  params,
+}: {
+  params: Params;
 }): Promise<Metadata> {
-  const { username } = params;
+  const { username } = await params;
   const user = await getUserByUsername(username);
   return {
     title: `${user.username}`,
@@ -64,7 +66,8 @@ export async function generateMetadata(params: {
 }
 
 export default async function UserLayout({ children, params }: LayoutProps) {
-  const { username } = params;
+  const { username } = await params;
+  console.log({ username });
   const user = await getUserByUsername(username);
   return (
     <>
