@@ -3,8 +3,9 @@ import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "../svgs";
 
 interface InputFieldProps extends InputProps {
-  label?: string;
   id: string;
+  label?: string;
+  error?: string;
 }
 
 export default function Input({
@@ -12,6 +13,7 @@ export default function Input({
   id,
   type = "text",
   placeholder,
+  error,
   value,
   onChange,
   className,
@@ -69,6 +71,7 @@ export default function Input({
           </button>
         )}
       </div>
+      {error && <p className="text-red-500 text-xs">{error}</p>}
     </div>
   );
 }

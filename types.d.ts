@@ -160,3 +160,13 @@ interface ResetPasswordResponse
   extends ApiResponse<{
     message: string;
   }> {}
+
+interface AuthFormProps {
+  route: "sign-in" | "sign-up";
+}
+
+interface FormErrors {
+  username?: string;
+  password?: string;
+  age?: string;
+}

@@ -29,12 +29,17 @@ const getUserByUsername = async (slug: string) => {
   return jsonResponse.data as User;
 };
 
+interface LayoutProps {
+  children: React.ReactNode;
+  params: { username: string };
+}
+
 export async function generateMetadata({
   params,
 }: {
-  params: Params;
+  params: { username: string };
 }): Promise<Metadata> {
-  const { username } = await params;
+  const { username } = params;
   const user = await getUserByUsername(username);
   return {
     title: `${user.username}`,
@@ -69,14 +74,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function UserLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Params;
-}) {
-  const { username } = await params;
+export default async function UserLayout({ children, params }: LayoutProps) {
+  const { username } = params;
   const user = await getUserByUsername(username);
   return (
     <>

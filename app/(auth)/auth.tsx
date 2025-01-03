@@ -11,14 +11,16 @@ import { ANON_SERVER_URL } from "@/app/constants";
 import { useAuthStore } from "@/app/store/useAuth";
 import { validations } from "@/app/lib/validations";
 
-interface AuthFormProps {
-  route: "sign-in" | "sign-up";
-}
-
 interface FormData {
   age: number;
   username: string;
   password: string;
+}
+
+interface FormErrors {
+  username?: string;
+  password?: string;
+  age?: string;
 }
 
 export default function AuthForm({ route }: AuthFormProps) {
@@ -30,6 +32,7 @@ export default function AuthForm({ route }: AuthFormProps) {
     age: 18,
     password: "",
   });
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,9 +124,16 @@ export default function AuthForm({ route }: AuthFormProps) {
             required
             label="Username"
             value={formData.username}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, username: e.target.value }))
-            }
+            error={errors.username}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFormData((prev) => ({ ...prev, username: value }));
+              const validation = validations.username(value);
+              setErrors((prev) => ({
+                ...prev,
+                username: !validation.isValid ? validation.message : undefined,
+              }));
+            }}
             className="mt-1"
             placeholder="femzy"
           />
@@ -137,12 +147,16 @@ export default function AuthForm({ route }: AuthFormProps) {
               type="number"
               label="Age"
               value={formData.age.toString()}
-              onChange={(e) =>
-                setFormData((prev) => ({
+              error={errors.age}
+              onChange={(e) => {
+                const value = Number(e.target.value);
+                setFormData((prev) => ({ ...prev, age: value }));
+                const validation = validations.age(value);
+                setErrors((prev) => ({
                   ...prev,
-                  age: Number(e.target.value),
-                }))
-              }
+                  age: !validation.isValid ? validation.message : undefined,
+                }));
+              }}
               className="mt-1"
               placeholder="must be 18 or older"
             />
@@ -156,9 +170,16 @@ export default function AuthForm({ route }: AuthFormProps) {
             type="password"
             label="Password"
             value={formData.password}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, password: e.target.value }))
-            }
+            error={errors.password}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFormData((prev) => ({ ...prev, password: value }));
+              const validation = validations.password(value);
+              setErrors((prev) => ({
+                ...prev,
+                password: !validation.isValid ? validation.message : undefined,
+              }));
+            }}
             className="mt-1"
             placeholder="lowercase, uppercase, number, special char, min 8 chars"
           />
@@ -168,7 +189,7 @@ export default function AuthForm({ route }: AuthFormProps) {
           type="submit"
           loading={loading}
           className="w-full"
-          // disabled={isDisabled}
+          // disabled={isDisabled || Object.keys(errors).length > 0}
         >
           {loading ? (
             <span className="flex items-center gap-2">
