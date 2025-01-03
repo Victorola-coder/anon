@@ -116,7 +116,7 @@ export default function AuthForm({ route }: AuthFormProps) {
         router.push("/dashboard");
       }
       localStorage.setItem("token", data.token);
-      router.push(route === "sign-up" ? "/sign-in" : "/dashboard");
+      router.push(route === "sign-up" ? "/signin" : "/dashboard");
     } catch (error) {
       toast.error(
         error instanceof Error
