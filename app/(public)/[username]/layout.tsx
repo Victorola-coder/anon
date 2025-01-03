@@ -38,7 +38,7 @@ export async function generateMetadata({
   const { username } = await params;
   const user = await getUserByUsername(username);
   return {
-    title: `${user.username}`,
+    title: `${user.username} | Anonymous`,
     description: `Send me a secret anonymous message.`,
     openGraph: {
       title: `${user.username} | Anonymous`,
@@ -59,7 +59,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: `${user.username} | Anonymous`,
       description: `Send me a secret anonymous message.`,
-      creator: "Adesokan Emmanuel (devFemzy)",
+      creator: "@devFemzy",
       images: [user.profileUrl ?? "https://example.com/default-profile.png"],
     },
   };
