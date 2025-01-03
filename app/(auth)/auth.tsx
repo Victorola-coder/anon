@@ -6,8 +6,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/app/components/ui";
 import Input from "@/app/components/ui/input";
-import { ANON_SERVER_URL } from "@/app/constants";
 import { useRouter } from "next-nprogress-bar";
+import { ANON_SERVER_URL } from "@/app/constants";
+import { useAuthStore } from "@/app/store/useAuth";
 
 interface AuthFormProps {
   route: "sign-in" | "sign-up";
@@ -21,6 +22,7 @@ interface FormData {
 
 export default function AuthForm({ route }: AuthFormProps) {
   const router = useRouter();
+  const { setUser, setToken } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     username: "",
@@ -57,6 +59,11 @@ export default function AuthForm({ route }: AuthFormProps) {
 
       if (!response.ok) {
         throw new Error(data.message || "Authentication failed");
+      }
+
+      if (route === "sign-in") {
+        setUser(data.user);
+        setToken(data.token);
       }
 
       toast.success(
