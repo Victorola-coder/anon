@@ -12,9 +12,11 @@ import {
   Image as ImageIcon,
   CheckCircle,
 } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import { useUrl } from "@/app/hooks/use-url";
 import Button from "@/app/components/ui/button";
 import { ShareModal } from "../components/share-modal";
 import { AnonymousPollForm } from "../components/poll";
@@ -24,7 +26,6 @@ import { PasswordStrength } from "../components/password-strength";
 import { ExpirationPicker } from "../components/expiration-picker";
 import { MessagePreviewModal } from "../components/message-preview-modal";
 import { formatExpirationTime, getTimeZoneAbbr } from "@/app/lib/timezone";
-import Link from "next/link";
 
 export default function UserPublicPage() {
   const [message, setMessage] = useState("");
@@ -39,6 +40,7 @@ export default function UserPublicPage() {
     allowReplies: true,
     notifyOnRead: false,
     hasImage: false,
+    type: "anon",
   });
   const [showPreview, setShowPreview] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -53,6 +55,7 @@ export default function UserPublicPage() {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const params = useParams();
+  const url = useUrl();
   const username = params.username as string;
 
   useEffect(() => {
@@ -109,7 +112,7 @@ export default function UserPublicPage() {
   };
 
   const handleShare = async () => {
-    const shareUrl = window.location.href;
+    const shareUrl = url;
     try {
       if (navigator.share) {
         await navigator.share({
@@ -164,9 +167,10 @@ export default function UserPublicPage() {
                       expiresIn: "24",
                       hasPassword: false,
                       password: "",
+                      hasImage: false,
                       allowReplies: true,
                       notifyOnRead: false,
-                      hasImage: false,
+                      type: "anon",
                     });
                   }}
                 >
@@ -538,7 +542,7 @@ export default function UserPublicPage() {
                         </AnimatePresence>
                       </div>
 
-                      <div className="flex justify-between gap-3">
+                      <div className="flex flex-col md:flex-row justify-between gap-3">
                         <Button
                           type="button"
                           variant="secondary"
@@ -589,22 +593,27 @@ export default function UserPublicPage() {
                   isOpen={showPreview}
                   onClose={() => setShowPreview(false)}
                   message={message}
-                  imagePreview={
-                    selectedImage ? URL.createObjectURL(selectedImage) : null
+                  image={
+                    selectedImage
+                      ? URL.createObjectURL(selectedImage)
+                      : undefined
                   }
                   options={{
                     ...options,
+                    type: "anon",
                     expirationTime: options.isTemporary
-                      ? formatExpirationTime(parseFloat(options.expiresIn))
+                      ? new Date(
+                          formatExpirationTime(parseFloat(options.expiresIn))
+                        )
                       : undefined,
                   }}
                 />
 
                 <ShareModal
+                  url={url}
+                  username={username}
                   isOpen={showShareModal}
                   onClose={() => setShowShareModal(false)}
-                  username={username}
-                  url={window.location.href}
                 />
 
                 {error && (

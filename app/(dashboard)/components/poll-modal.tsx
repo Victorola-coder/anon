@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Modal } from "@/app/components/ui/modal";
@@ -29,11 +30,27 @@ export function PollModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate at least 2 options
+    if (options.length < 2) {
+      toast.error("Please add at least 2 options");
+      return;
+    }
+
+    // Validate no empty options
+    if (options.some((o) => !o.text.trim())) {
+      toast.error("Please fill in all options");
+      return;
+    }
+
     onSubmit({
       question,
-      options: options.map((o) => ({ ...o, votes: 0 })),
+      options: options.map((o) => ({
+        ...o,
+        votes: initialData?.options.find((opt) => opt.id === o.id)?.votes || 0,
+      })),
       status: "active",
-      createdAt: new Date().toISOString(),
+      createdAt: initialData?.createdAt || new Date().toISOString(),
       endsAt,
     });
     onClose();

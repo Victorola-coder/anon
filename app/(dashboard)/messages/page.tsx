@@ -17,26 +17,10 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import Button from "@/app/components/ui/button";
-import { Modal } from "@/app/components/ui/modal";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
-
-interface Message {
-  id: string;
-  content: string;
-  timestamp: string;
-  read: boolean;
-  starred: boolean;
-  temporary?: {
-    expiresAt: string;
-    hasImage: boolean;
-    imageUrl?: string;
-  };
-  hasPassword?: boolean;
-  password?: string;
-  type: "confession" | "appreciation" | "feedback" | "question";
-}
+import Button from "@/app/components/ui/button";
+import { Modal } from "@/app/components/ui/modal";
 
 export default function MessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -58,26 +42,31 @@ export default function MessagesPage() {
         await new Promise((resolve) => setTimeout(resolve, 1500));
         setMessages([
           {
-            id: "1",
+            _id: "1",
             content: "You inspire me to be a better person every day...",
-            timestamp: "2 hours ago",
-            read: false,
-            starred: true,
-            temporary: {
-              expiresAt: "2024-03-01T15:00:00",
-              hasImage: true,
-              imageUrl: "/images/lolo.jpg",
-            },
+            creator: "user123",
+            creatorName: "johndoe",
+            createdAt: new Date("2024-03-01T15:00:00"),
+            updatedAt: new Date("2024-03-01T15:00:00"),
+            isRead: false,
+            isStarred: true,
+            hasPassword: false,
+            isTemporary: true,
+            expiresAt: new Date("2024-03-01T15:00:00"),
+            image: "/images/lolo.jpg",
             type: "appreciation",
           },
           {
-            id: "2",
+            _id: "2",
             content: "so good to see you again, i missed you so much.",
-            timestamp: "5 hours ago",
-            read: true,
-            starred: false,
+            creator: "user123",
+            creatorName: "johndoe",
+            createdAt: new Date("2024-03-01T15:00:00"),
+            updatedAt: new Date("2024-03-01T15:00:00"),
+            isRead: true,
+            isStarred: false,
             hasPassword: true,
-            password: "1234", // In real app, this would be hashed
+            password: "1234",
             type: "confession",
           },
         ]);
@@ -92,10 +81,10 @@ export default function MessagesPage() {
   }, []);
 
   const handleMessageClick = (message: Message) => {
-    if (message.hasPassword && !message.read) {
+    if (message.hasPassword && !message.isRead) {
       setSelectedMessage(message);
       setShowPasswordModal(true);
-    } else if (message.temporary?.hasImage) {
+    } else if (message.image) {
       setSelectedMessage(message);
       setShowImageModal(true);
     } else {
@@ -103,15 +92,15 @@ export default function MessagesPage() {
       setShowContentModal(true);
     }
 
-    if (!message.read) {
-      markAsRead(message.id);
+    if (!message.isRead) {
+      markAsRead(message._id);
     }
   };
 
   const markAsRead = (messageId: string) => {
     setMessages(
       messages.map((msg) =>
-        msg.id === messageId ? { ...msg, read: true } : msg
+        msg._id === messageId ? { ...msg, isRead: true } : msg
       )
     );
   };
@@ -119,20 +108,20 @@ export default function MessagesPage() {
   const toggleStar = (messageId: string) => {
     setMessages(
       messages.map((msg) =>
-        msg.id === messageId ? { ...msg, starred: !msg.starred } : msg
+        msg._id === messageId ? { ...msg, isStarred: !msg.isStarred } : msg
       )
     );
     toast.success("Message starred");
   };
 
   const deleteMessage = (messageId: string) => {
-    setMessages(messages.filter((msg) => msg.id !== messageId));
+    setMessages(messages.filter((msg) => msg._id !== messageId));
     toast.success("Message deleted");
   };
 
   const handlePasswordSubmit = () => {
     if (selectedMessage?.password === passwordInput) {
-      markAsRead(selectedMessage.id);
+      markAsRead(selectedMessage._id);
       setShowPasswordModal(false);
       setShowContentModal(true);
       setPasswordInput("");
@@ -353,8 +342,8 @@ export default function MessagesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {messages
                 .filter((msg) => {
-                  if (filter === "unread") return !msg.read;
-                  if (filter === "starred") return msg.starred;
+                  if (filter === "unread") return !msg.isRead;
+                  if (filter === "starred") return msg.isStarred;
                   return true;
                 })
                 .filter((msg) =>
@@ -362,9 +351,13 @@ export default function MessagesPage() {
                 )
                 .map((message) => (
                   <motion.div
-                    key={message.id}
-                    id={`message-${message.id}`}
-                    className="w-full aspect-square p-6 bg-navy border rounded-xl"
+                    key={message._id}
+                    id={`message-${message._id}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="w-full aspect-square p-6 bg-navy border rounded-xl cursor-pointer hover:border-teal transition-colors"
+                    onClick={() => handleMessageClick(message)}
                   >
                     <div className="h-full flex flex-col">
                       <span className="w-fit inline-block px-2 py-1 text-xs rounded-full bg-navy-light text-slate mb-3">
@@ -372,34 +365,55 @@ export default function MessagesPage() {
                       </span>
 
                       <div className="flex-1 overflow-hidden">
-                        {message.temporary?.hasImage ? (
-                          <div className="space-y-4">
-                            <div className="w-full h-[200px] rounded-lg overflow-hidden bg-navy-light">
-                              <img
-                                src={message.temporary.imageUrl}
-                                alt="Message attachment"
-                                className="w-full h-full object-cover"
+                        {message.hasPassword && !message.isRead ? (
+                          <div className="h-full flex items-center justify-center">
+                            <div className="text-center">
+                              <Lock
+                                size={24}
+                                className="text-slate mb-2 mx-auto"
                               />
-                            </div>
-                            {message.content && (
-                              <p className="text-slate-lighter text-lg line-clamp-3">
-                                {message.content}
+                              <p className="text-slate text-sm">
+                                Password Protected
                               </p>
-                            )}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedMessage(message);
+                                  setShowPasswordModal(true);
+                                }}
+                                className="mt-4 px-4 py-2 bg-navy-light rounded-lg text-slate-lighter hover:bg-navy-lighter transition-colors"
+                              >
+                                Unlock Message
+                              </button>
+                            </div>
                           </div>
                         ) : (
-                          <p className="text-slate-lighter text-xl leading-relaxed whitespace-pre-wrap">
-                            {message.content}
-                          </p>
+                          <div className="h-full flex flex-col">
+                            {message.image && (
+                              <div className="mb-4 relative w-full h-[200px] rounded-lg overflow-hidden bg-navy-light group">
+                                <img
+                                  src={message.image}
+                                  alt="Message attachment"
+                                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                  <ImageIcon className="text-white" size={24} />
+                                </div>
+                              </div>
+                            )}
+                            <p className="text-slate-lighter">
+                              {message.content}
+                            </p>
+                          </div>
                         )}
                       </div>
 
                       <div className="mt-auto pt-4 border-t border-navy-light">
                         <div className="flex items-center justify-between mb-3">
                           <span className="text-sm text-slate">
-                            {message.timestamp}
+                            {message.createdAt.toLocaleString()}
                           </span>
-                          {!message.read && (
+                          {!message.isRead && (
                             <span className="inline-flex items-center gap-1 text-teal text-sm">
                               <Eye size={14} />
                               New
@@ -409,42 +423,27 @@ export default function MessagesPage() {
 
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2 text-slate text-sm">
-                            {message.temporary && (
-                              <span className="inline-flex items-center gap-1">
-                                <Clock size={14} />
-                              </span>
-                            )}
-                            {message.hasPassword && (
-                              <span className="inline-flex items-center gap-1">
-                                <Lock size={14} />
-                              </span>
-                            )}
-                            {message.temporary?.hasImage && (
-                              <span className="inline-flex items-center gap-1">
-                                <ImageIcon size={14} />
-                              </span>
-                            )}
+                            {message.isTemporary && <Clock size={14} />}
+                            {message.hasPassword && <Lock size={14} />}
+                            {message.image && <ImageIcon size={14} />}
                           </div>
 
                           <div className="flex items-center gap-2">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (loadingStates[`star-${message.id}`]) return;
-                                toggleStar(message.id);
+                                if (loadingStates[`star-${message._id}`])
+                                  return;
+                                toggleStar(message._id);
                               }}
-                              disabled={loadingStates[`star-${message.id}`]}
+                              disabled={loadingStates[`star-${message._id}`]}
                               className={`p-2 rounded-lg ${
-                                message.starred
+                                message.isStarred
                                   ? "text-yellow-500"
                                   : "text-slate hover:text-slate-lighter"
-                              } ${
-                                loadingStates[`star-${message.id}`]
-                                  ? "opacity-50"
-                                  : ""
                               }`}
                             >
-                              {loadingStates[`star-${message.id}`] ? (
+                              {loadingStates[`star-${message._id}`] ? (
                                 <div className="animate-spin h-4 w-4 border-2 border-slate rounded-full border-t-transparent" />
                               ) : (
                                 <Star size={18} />
@@ -454,18 +453,14 @@ export default function MessagesPage() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (loadingStates[`delete-${message.id}`])
+                                if (loadingStates[`delete-${message._id}`])
                                   return;
-                                deleteMessage(message.id);
+                                deleteMessage(message._id);
                               }}
-                              disabled={loadingStates[`delete-${message.id}`]}
-                              className={`p-2 rounded-lg text-slate hover:text-slate-lighter ${
-                                loadingStates[`delete-${message.id}`]
-                                  ? "opacity-50"
-                                  : ""
-                              }`}
+                              disabled={loadingStates[`delete-${message._id}`]}
+                              className="p-2 rounded-lg text-slate hover:text-slate-lighter"
                             >
-                              {loadingStates[`delete-${message.id}`] ? (
+                              {loadingStates[`delete-${message._id}`] ? (
                                 <div className="animate-spin h-4 w-4 border-2 border-slate rounded-full border-t-transparent" />
                               ) : (
                                 <Trash2 size={18} />
@@ -475,28 +470,16 @@ export default function MessagesPage() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (loadingStates[`download-${message.id}`])
+                                if (loadingStates[`download-${message._id}`])
                                   return;
-                                if (
-                                  message.temporary?.hasImage &&
-                                  message.temporary.imageUrl
-                                ) {
-                                  downloadImage(
-                                    message.temporary.imageUrl,
-                                    message.id
-                                  );
-                                } else {
-                                  downloadMessageAsImage(message.id);
-                                }
+                                downloadMessageAsImage(message._id);
                               }}
-                              disabled={loadingStates[`download-${message.id}`]}
-                              className={`p-2 rounded-lg text-slate hover:text-slate-lighter ${
-                                loadingStates[`download-${message.id}`]
-                                  ? "opacity-50"
-                                  : ""
-                              }`}
+                              disabled={
+                                loadingStates[`download-${message._id}`]
+                              }
+                              className="p-2 rounded-lg text-slate hover:text-slate-lighter"
                             >
-                              {loadingStates[`download-${message.id}`] ? (
+                              {loadingStates[`download-${message._id}`] ? (
                                 <div className="animate-spin h-4 w-4 border-2 border-slate rounded-full border-t-transparent" />
                               ) : (
                                 <Download size={18} />
@@ -575,10 +558,10 @@ export default function MessagesPage() {
         title="Message Image"
       >
         <div className="space-y-4">
-          {selectedMessage?.temporary?.imageUrl && (
+          {selectedMessage?.image && (
             <div className="space-y-4">
               <img
-                src={selectedMessage.temporary.imageUrl}
+                src={selectedMessage.image}
                 alt="Message attachment"
                 className="w-full h-auto rounded-lg"
               />
@@ -589,11 +572,8 @@ export default function MessagesPage() {
                 <Button
                   variant="secondary"
                   onClick={() =>
-                    selectedMessage?.temporary?.imageUrl &&
-                    downloadImage(
-                      selectedMessage.temporary.imageUrl,
-                      selectedMessage.id
-                    )
+                    selectedMessage?.image &&
+                    downloadImage(selectedMessage.image, selectedMessage._id)
                   }
                   className="flex items-center gap-2"
                 >
@@ -615,10 +595,10 @@ export default function MessagesPage() {
         <div className="space-y-4">
           {selectedMessage && (
             <div className="bg-navy border border-navy-light rounded-xl p-6">
-              {selectedMessage.temporary?.hasImage && (
+              {selectedMessage.image && (
                 <div className="relative group mb-4">
                   <img
-                    src={selectedMessage.temporary.imageUrl}
+                    src={selectedMessage.image}
                     alt="Message attachment"
                     className="w-full rounded-lg cursor-zoom-in transition-transform hover:scale-[1.02]"
                     onClick={() => {
@@ -638,8 +618,8 @@ export default function MessagesPage() {
 
               <div className="mt-6 flex items-center justify-between border-t border-navy-light pt-4">
                 <div className="flex items-center gap-3 text-sm text-slate">
-                  <span>{selectedMessage.timestamp}</span>
-                  {selectedMessage.temporary && (
+                  <span>{selectedMessage.createdAt.toLocaleString()}</span>
+                  {selectedMessage.isTemporary && (
                     <span className="flex items-center gap-1">
                       <Clock size={14} />
                       Expires soon
@@ -648,7 +628,7 @@ export default function MessagesPage() {
                 </div>
                 <Button
                   variant="secondary"
-                  onClick={() => downloadMessageAsImage(selectedMessage.id)}
+                  onClick={() => downloadMessageAsImage(selectedMessage._id)}
                   className="flex items-center gap-2"
                 >
                   <Download size={18} />

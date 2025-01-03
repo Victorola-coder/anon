@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Card } from "../components/card";
 import { DailyPrompt } from "../components/daily-prompt";
-import { motion } from "framer-motion";
 import {
   MessageCircle,
   Clock,

@@ -68,9 +68,9 @@ Anon is a modern web application designed for anonymous messaging and interactio
    - Keep pull request discussions professional and constructive
 
 8. **Design Implementation**:
-   - Follow Figma designs precisely
    - Pay attention to spacing, typography, and animations
    - Ensure responsive behavior matches design specifications
+   - Follow the pattern already, i created a good amount of resuable components around.
 
 ### Setup Instructions
 

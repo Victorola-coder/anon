@@ -39,6 +39,58 @@ body::-webkit-scrollbar-thumb {
   rounded-full bg-teal hover:bg-teal/60;
 }
 
+@layer base {
+  :root {
+    --background: #151923;
+    --foreground: 210 40% 98%;
+
+    --primary: 176 100% 50%;
+    --primary-foreground: 222.2 84% 4.9%;
+
+    --navy: #0f1729;
+    --navy-light: #1e293b;
+    --navy-lighter: #334155;
+    --slate: #94a3b8;
+    --slate-light: #cbd5e1;
+    --slate-lighter: #e2e8f0;
+    --teal: #14b8a6;
+  }
+
+  .light {
+    --background: #ffffff;
+    --foreground: 222.2 84% 4.9%;
+
+    --primary: 176 100% 40%;
+    --primary-foreground: 210 40% 98%;
+
+    --navy: 210 40% 96.1%;
+    --navy-light: 215 20.2% 65.1%;
+    --navy-lighter: 222.2 47.4% 11.2%;
+
+    --slate: 222.2 47.4% 11.2%;
+    --slate-light: 215 20.2% 65.1%;
+    --slate-lighter: 210 40% 96.1%;
+  }
+
+  body {
+    @apply bg-navy text-slate-lighter;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg transition-colors;
+  }
+
+  .btn-primary {
+    @apply bg-teal text-navy hover:bg-opacity-90;
+  }
+
+  .btn-secondary {
+    @apply bg-navy-light text-slate hover:bg-navy-lighter;
+  }
+}
+
 html.lenis {
   height: auto;
 }
