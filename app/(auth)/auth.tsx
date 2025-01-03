@@ -7,13 +7,15 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/ui";
 import Input from "@/app/components/ui/input";
+import { ANON_SERVER_URL } from "@/app/constants";
 
 interface AuthFormProps {
   route: "sign-in" | "sign-up";
 }
 
 interface FormData {
-  email: string;
+  age: number;
+  username: string;
   password: string;
 }
 
@@ -21,7 +23,8 @@ export default function AuthForm({ route }: AuthFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    email: "",
+    username: "",
+    age: 18,
     password: "",
   });
 
@@ -30,25 +33,64 @@ export default function AuthForm({ route }: AuthFormProps) {
     setLoading(true);
 
     try {
-      //  authentication logic here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const requestBody =
+        route === "sign-up"
+          ? {
+              username: formData.username,
+              password: formData.password,
+              age: Number(formData.age),
+            }
+          : {
+              username: formData.username,
+              password: formData.password,
+            };
+
+      const response = await fetch(`${ANON_SERVER_URL}/api/user/${route}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Authentication failed");
+      }
+
       toast.success(
-        `${route === "sign-in" ? "Signed in" : "Account created"} successfully!`
+        route === "sign-up"
+          ? "Account created successfully!"
+          : "Signed in successfully!"
       );
-      router.push("/dashboard");
+      router.push(route === "sign-up" ? "/sign-in" : "/dashboard");
     } catch (error) {
-      toast.error("Authentication failed. Please try again.");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Authentication failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const validEmail = (email: string) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
+  const validUsername = (username: string) => {
+    const usernameRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return usernameRegex.test(username);
   };
 
-  const isDisabled = !validEmail(formData.email);
+  const validPassword = (password: string) => {
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
+  };
+
+  const isDisabled =
+    !validUsername(formData.username) ||
+    !validPassword(formData.password) ||
+    (route === "sign-up" && formData.age < 18);
 
   return (
     <motion.div
@@ -70,18 +112,38 @@ export default function AuthForm({ route }: AuthFormProps) {
       <form onSubmit={handleSubmit} className="space-y-6">
         <fieldset>
           <Input
-            id="email"
-            type="email"
+            id="username"
+            type="text"
             required
-            label="Email"
-            value={formData.email}
+            label="Username"
+            value={formData.username}
             onChange={(e) =>
-              setFormData((prev) => ({ ...prev, email: e.target.value }))
+              setFormData((prev) => ({ ...prev, username: e.target.value }))
             }
             className="mt-1"
-            placeholder="you@example.com"
+            placeholder="femzy"
           />
         </fieldset>
+
+        {route === "sign-up" && (
+          <fieldset>
+            <Input
+              required
+              id="age"
+              type="number"
+              label="Age"
+              value={formData.age.toString()}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  age: Number(e.target.value),
+                }))
+              }
+              className="mt-1"
+              placeholder="must be 18 or older"
+            />
+          </fieldset>
+        )}
 
         <fieldset>
           <Input
@@ -94,11 +156,16 @@ export default function AuthForm({ route }: AuthFormProps) {
               setFormData((prev) => ({ ...prev, password: e.target.value }))
             }
             className="mt-1"
-            placeholder="valid password"
+            placeholder="lowercase, uppercase, number, special char, min 8 chars"
           />
         </fieldset>
 
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button
+          type="submit"
+          loading={loading}
+          className="w-full"
+          // disabled={isDisabled}
+        >
           {loading ? (
             <span className="flex items-center gap-2">
               <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
