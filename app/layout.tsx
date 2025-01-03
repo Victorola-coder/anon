@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    url: "https://anon.victorola.mevictorola.me",
+    url: "https://anon.victorola.me",
     title: "Anon - Anonymous Messaging Platform",
     siteName: "Anon - Anonymous Messaging Platform",
     locale: "en_US",
