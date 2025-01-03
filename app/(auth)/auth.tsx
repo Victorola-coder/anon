@@ -9,9 +9,8 @@ import Input from "@/app/components/ui/input";
 import { useRouter } from "next-nprogress-bar";
 import { ANON_SERVER_URL } from "@/app/constants";
 import { useAuthStore } from "@/app/store/useAuth";
-// import { validations } from "@/app/lib/validations";
+import { validations } from "@/app/lib/validations";
 import { PasswordStrength } from "@/app/components/password-strength";
-import { validations } from "../lib/validations";
 
 interface FormData {
   age: number;
@@ -36,31 +35,39 @@ export default function AuthForm({ route }: AuthFormProps) {
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
-  // TODO: add validation and make it work properly and other commented codes
+  const validateForm = () => {
+    const usernameValidation = validations.username(formData.username);
+    const passwordValidation = validations.password(formData.password);
+    const ageValidation =
+      route === "sign-up" ? validations.age(formData.age) : { isValid: true };
 
-  // const validateForm = () => {
-  //   const errors: FormErrors = {};
+    const isValid =
+      usernameValidation.isValid &&
+      passwordValidation.isValid &&
+      ageValidation.isValid &&
+      formData.username.trim() !== "" &&
+      formData.password.trim() !== "" &&
+      (route !== "sign-up" || formData.age >= 18);
 
-  //   const usernameValidation = validations.username(formData.username);
-  //   if (!usernameValidation.isValid) {
-  //     errors.username = usernameValidation.message;
-  //   }
+    return isValid;
+  };
 
-  //   const passwordValidation = validations.password(formData.password);
-  //   if (!passwordValidation.isValid) {
-  //     errors.password = passwordValidation.message;
-  //   }
+  const handleInputChange = (
+    field: keyof FormData,
+    value: string | number | number
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
 
-  //   if (route === "sign-up") {
-  //     const ageValidation = validations.age(formData.age);
-  //     if (!ageValidation.isValid) {
-  //       errors.age = ageValidation.message;
-  //     }
-  //   }
-
-  //   setErrors(errors);
-  //   return Object.keys(errors).length === 0;
-  // };
+    // @ts-ignore
+    const validation = validations[field as keyof typeof validations](value);
+    if (!value) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    } else if (!validation.isValid) {
+      setErrors((prev) => ({ ...prev, [field]: validation.message }));
+    } else {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,25 +157,16 @@ export default function AuthForm({ route }: AuthFormProps) {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <fieldset>
           <Input
             id="username"
             name="username"
             type="text"
-            // required
             label="Username"
             value={formData.username}
             error={errors.username}
-            onChange={(e) => {
-              const value = e.target.value;
-              setFormData((prev) => ({ ...prev, username: value }));
-              const validation = validations.username(value);
-              setErrors((prev) => ({
-                ...prev,
-                username: !validation.isValid ? validation.message : undefined,
-              }));
-            }}
+            onChange={(e) => handleInputChange("username", e.target.value)}
             className="mt-1"
             placeholder="femzy"
           />
@@ -177,21 +175,12 @@ export default function AuthForm({ route }: AuthFormProps) {
         {route === "sign-up" && (
           <fieldset>
             <Input
-              // required
               id="age"
               type="number"
               label="Age"
               value={formData.age.toString()}
               error={errors.age}
-              onChange={(e) => {
-                const value = Number(e.target.value);
-                setFormData((prev) => ({ ...prev, age: value }));
-                const validation = validations.age(value);
-                setErrors((prev) => ({
-                  ...prev,
-                  age: !validation.isValid ? validation.message : undefined,
-                }));
-              }}
+              onChange={(e) => handleInputChange("age", Number(e.target.value))}
               className="mt-1"
               placeholder="must be 18 or older"
             />
@@ -206,15 +195,7 @@ export default function AuthForm({ route }: AuthFormProps) {
             label="Password"
             value={formData.password}
             error={errors.password}
-            onChange={(e) => {
-              const value = e.target.value;
-              setFormData((prev) => ({ ...prev, password: value }));
-              const validation = validations.password(value);
-              setErrors((prev) => ({
-                ...prev,
-                password: !validation.isValid ? validation.message : undefined,
-              }));
-            }}
+            onChange={(e) => handleInputChange("password", e.target.value)}
             className="mt-1"
             placeholder="lowercase, uppercase, number, special char, min 8 chars"
           />
@@ -225,7 +206,7 @@ export default function AuthForm({ route }: AuthFormProps) {
           type="submit"
           loading={loading}
           className="w-full"
-          // disabled={isDisabled || Object.keys(errors).length > 0}
+          disabled={loading || !validateForm()}
         >
           {loading ? (
             <span className="flex items-center gap-2">
