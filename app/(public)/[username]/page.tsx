@@ -28,6 +28,7 @@ import { MessagePreviewModal } from "../components/message-preview-modal";
 import { formatExpirationTime, getTimeZoneAbbr } from "@/app/lib/timezone";
 
 export default function UserPublicPage() {
+  const [user, setUser] = useState<User | null>(null);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -55,15 +56,16 @@ export default function UserPublicPage() {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const params = useParams();
-  const url = useUrl();
   const username = params.username as string;
+  const url = useUrl();
 
   useEffect(() => {
     // TODO: simulate API call to verify username exists when integrating with backend
     const loadUserProfile = async () => {
       try {
         // simulate API call to verify username exists
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        const user = localStorage.getItem(username);
+        setUser(JSON.parse(user as string));
 
         // If we get here, user exists
         setIsPageLoading(false);
@@ -194,11 +196,11 @@ export default function UserPublicPage() {
                 <div className="text-center">
                   <div className="w-24 h-24 bg-teal/10 rounded-full mx-auto flex items-center justify-center">
                     <span className="text-3xl text-teal">
-                      {username.charAt(0).toUpperCase()}
+                      {user?.username.charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <h1 className="mt-4 text-2xl font-bold text-slate-lighter">
-                    @{username}
+                    @{user?.username}
                   </h1>
                   <p className="text-slate mt-2">
                     Send me an anonymous message!

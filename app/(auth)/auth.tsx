@@ -4,10 +4,10 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/ui";
 import Input from "@/app/components/ui/input";
 import { ANON_SERVER_URL } from "@/app/constants";
+import { useRouter } from "next-nprogress-bar";
 
 interface AuthFormProps {
   route: "sign-in" | "sign-up";
@@ -64,6 +64,13 @@ export default function AuthForm({ route }: AuthFormProps) {
           ? "Account created successfully!"
           : "Signed in successfully!"
       );
+
+      if (route === "sign-in") {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        router.push("/dashboard");
+      }
+      localStorage.setItem("token", data.token);
       router.push(route === "sign-up" ? "/sign-in" : "/dashboard");
     } catch (error) {
       toast.error(
