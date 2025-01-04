@@ -2,7 +2,19 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get("token")?.value;
+  // Check for persisted auth store token
+  const authStorage = request.cookies.get("auth-storage")?.value;
+  let token = null;
+
+  if (authStorage) {
+    try {
+      const parsed = JSON.parse(authStorage);
+      token = parsed.state?.token;
+    } catch (e) {
+      // Invalid storage format
+    }
+  }
+
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/signin") ||
     request.nextUrl.pathname.startsWith("/signup");

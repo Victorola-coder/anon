@@ -102,23 +102,17 @@ export default function AuthForm({ route }: AuthFormProps) {
       }
 
       if (route === "sign-in") {
-        setUser(data.data.user);
         setToken(data.token);
-
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.data.user));
-
+        setUser(data.user);
         toast.success("Signed in successfully!");
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       } else {
         toast.success("Account created successfully!");
         router.push("/signin");
       }
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Authentication failed. Please try again."
+        error instanceof Error ? error.message : "Authentication failed"
       );
     } finally {
       setLoading(false);

@@ -22,11 +22,12 @@ import html2canvas from "html2canvas";
 import Button from "@/app/components/ui/button";
 import { Modal } from "@/app/components/ui/modal";
 import { ANON_SERVER_URL } from "@/app/constants";
-import { useRouter } from "next-nprogress-bar";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/app/store/useAuth";
 
 export default function MessagesPage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState("");
+  const { user, token } = useAuthStore();
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "unread" | "starred">("all");
@@ -41,45 +42,21 @@ export default function MessagesPage() {
   }>({});
   const [pageLoaded, setPageLoaded] = useState(false);
 
-  const router = useRouter();
-
   useEffect(() => {
-    if (typeof window !== undefined) {
-      // TODO: simulate API call to verify username exists when integrating with backend
-      const loadUserProfile = async () => {
-        try {
-          // simulate API call to verify username exists
-          const user = localStorage.getItem("user");
-          const token = localStorage.getItem("token");
-          setUser(JSON.parse(user as string));
-          setToken(JSON.parse(token as string));
-
-          console.log({ user, token });
-
-          if (user && token) {
-            toast.success("User exists");
-          } else {
-            toast.error("User does not exist");
-            // router.push("/signin");
-          }
-
-          // If we get here, user exists
-        } catch (err) {
-          toast.error("User does not exist");
-        }
-      };
-      loadUserProfile();
+    if (!token) {
+      router.push("/signin");
+      return;
     }
 
-    setPageLoaded(!pageLoaded);
-  }, [pageLoaded]);
-
-  useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch(`${ANON_SERVER_URL}/api/messages/get`);
-        const messageResponse = await response.json();
-        setMessages(messageResponse.data.messages);
+        const response = await fetch(`${ANON_SERVER_URL}/api/messages/get`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        setMessages(data.messages);
       } catch (error) {
         toast.error("Failed to load messages");
       } finally {
@@ -88,7 +65,7 @@ export default function MessagesPage() {
     };
 
     fetchMessages();
-  }, []);
+  }, [token, router]);
 
   const handleMessageClick = (message: Message) => {
     if (message.hasPassword && !message.isRead) {
