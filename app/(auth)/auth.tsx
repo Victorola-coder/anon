@@ -95,30 +95,24 @@ export default function AuthForm({ route }: AuthFormProps) {
       });
 
       const data = await response.json();
-      console.log("Auth Response:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "Authentication failed");
       }
 
       if (route === "sign-in") {
-        setUser(data.user);
         setToken(data.token);
-
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-
+        setUser(data.user);
+        document.cookie = `auth-storage=${data.token}; path=/`;
         toast.success("Signed in successfully!");
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       } else {
         toast.success("Account created successfully!");
         router.push("/signin");
       }
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Authentication failed. Please try again."
+        error instanceof Error ? error.message : "Authentication failed"
       );
     } finally {
       setLoading(false);
