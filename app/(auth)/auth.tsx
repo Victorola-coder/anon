@@ -102,11 +102,11 @@ export default function AuthForm({ route }: AuthFormProps) {
       }
 
       if (route === "sign-in") {
-        setUser(data.user);
+        setUser(data.data.user);
         setToken(data.token);
 
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("user", JSON.stringify(data.data.user));
 
         toast.success("Signed in successfully!");
         router.push("/dashboard");
