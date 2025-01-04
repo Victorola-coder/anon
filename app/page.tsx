@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { Button } from "./components/ui";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import {
   MessageCircle,
   Shield,
@@ -12,9 +12,36 @@ import {
   Lock,
   Globe,
 } from "lucide-react";
+import { useState, useEffect } from "react";
+
+const emojis = [
+  "👋",
+  "🌟",
+  "💬",
+  "🔒",
+  "🌍",
+  "🎉",
+  "🎈",
+  "🎂",
+  "🎁",
+  "🎊",
+  "❤️",
+  "😡",
+  "😎",
+  "😒",
+];
 
 export default function Home() {
   const router = useRouter();
+  const [emoji, setEmoji] = useState(emojis[0]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setEmoji(emojis[Math.floor(Math.random() * emojis.length)]);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <main className="flex flex-col min-h-screen  text-slate-lighter">
@@ -165,6 +192,7 @@ export default function Home() {
           <p className="text-slate">
             © {new Date().getFullYear()} Anon. All rights reserved.
           </p>
+          <p className="text-slate">Made with {emoji}</p>
         </div>
       </footer>
     </main>
