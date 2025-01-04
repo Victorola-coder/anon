@@ -26,6 +26,7 @@ import { PasswordStrength } from "../components/password-strength";
 import { ExpirationPicker } from "../components/expiration-picker";
 import { MessagePreviewModal } from "../components/message-preview-modal";
 import { formatExpirationTime, getTimeZoneAbbr } from "@/app/lib/timezone";
+import { ANON_SERVER_URL } from "@/app/constants";
 
 export default function UserPublicPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -54,6 +55,7 @@ export default function UserPublicPage() {
     password?: string;
   }>({});
   const [isSuccess, setIsSuccess] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
 
   const params = useParams();
   const username = params.username as string;
@@ -99,10 +101,36 @@ export default function UserPublicPage() {
     setIsLoading(true);
 
     try {
-      if (selectedImage) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch(`${ANON_SERVER_URL}/api/message`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message,
+          creatorId: user?._id,
+          ...(imageUrl ? { image: imageUrl } : {}),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send message");
       }
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      setMessage("");
+      setImageUrl("");
+      setSelectedImage(null);
+
+      setOptions({
+        isTemporary: false,
+        expiresIn: "24",
+        hasPassword: false,
+        password: "",
+        allowReplies: true,
+        notifyOnRead: false,
+        hasImage: false,
+        type: "anon",
+      });
 
       setIsSuccess(true);
       toast.success("Message sent successfully!");
@@ -344,6 +372,7 @@ export default function UserPublicPage() {
                                   >
                                     <ImageUpload
                                       onImageSelect={setSelectedImage}
+                                      setImageUrl={setImageUrl}
                                     />
                                     {options.hasImage &&
                                       !options.isTemporary && (
@@ -421,7 +450,7 @@ export default function UserPublicPage() {
                                       </div>
                                     )}
 
-                                    {options.hasPassword && (
+                                    {/* {options.hasPassword && (
                                       <div className="space-y-2">
                                         <div className="relative">
                                           <input
@@ -457,12 +486,12 @@ export default function UserPublicPage() {
                                           password={options.password}
                                         />
                                       </div>
-                                    )}
+                                    )} */}
                                   </motion.div>
                                 )}
                               </AnimatePresence>
                               {/* Password Protection */}
-                              <div className="flex items-center justify-between">
+                              {/* <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                   <Lock size={16} className="text-slate" />
                                   <span className="text-sm text-slate">
@@ -486,10 +515,10 @@ export default function UserPublicPage() {
                                   />
                                   <div className="w-11 h-6 bg-navy-light peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate after:border-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
                                 </label>
-                              </div>
+                              </div> */}
 
                               {/* Additional Options */}
-                              <div className="space-y-3">
+                              {/* <div className="space-y-3">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
                                     <MessageCircle
@@ -538,7 +567,7 @@ export default function UserPublicPage() {
                                     <div className="w-11 h-6 bg-navy-light peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate after:border-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
                                   </label>
                                 </div>
-                              </div>
+                              </div> */}
                             </motion.div>
                           )}
                         </AnimatePresence>

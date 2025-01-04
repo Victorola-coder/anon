@@ -12,6 +12,7 @@
     "@types/next-pwa": "^5.6.9",
     "aos": "^2.3.4",
     "axios": "^1.7.9",
+    "cloudinary": "^2.5.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",

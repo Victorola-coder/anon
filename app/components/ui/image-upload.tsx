@@ -1,20 +1,26 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, Dispatch, SetStateAction } from "react";
 import Button from "./button";
 import { toast } from "sonner";
 import { Image, X, Upload } from "lucide-react";
 
 interface ImageUploadProps {
   onImageSelect: (file: File | null) => void;
+  setImageUrl: Dispatch<SetStateAction<string>>;
   maxSize?: number; // in MB
 }
 
-export function ImageUpload({ onImageSelect, maxSize = 5 }: ImageUploadProps) {
+export function ImageUpload({
+  onImageSelect,
+  maxSize = 5,
+  setImageUrl,
+}: ImageUploadProps) {
   const [preview, setPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -36,6 +42,31 @@ export function ImageUpload({ onImageSelect, maxSize = 5 }: ImageUploadProps) {
     };
     reader.readAsDataURL(file);
     onImageSelect(file);
+
+    try {
+      setLoading(true);
+      // Upload function to get url
+      const formData = new FormData();
+      formData.append("file", file);
+
+      formData.append("upload_preset", "anonymous");
+
+      const uploadResponse = await fetch(
+        "https://api.cloudinary.com/v1_1/devfemzy/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const uploadedImage = await uploadResponse.json();
+      console.log({ uploadedImage });
+      setImageUrl(uploadedImage.secure_url);
+    } catch (e: any) {
+      toast.error(e.message || "Error uploading image");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRemove = () => {
@@ -61,10 +92,13 @@ export function ImageUpload({ onImageSelect, maxSize = 5 }: ImageUploadProps) {
           type="button"
           variant="secondary"
           onClick={() => inputRef.current?.click()}
+          disabled={loading}
           className="w-full h-32 flex flex-col items-center justify-center gap-2 border-2 border-dashed border-navy-light"
         >
           <Upload size={24} />
-          <span className="text-sm">Click to upload image</span>
+          <span className="text-sm">
+            {loading ? "Uploading ..." : "Click to upload image"}
+          </span>
         </Button>
       ) : (
         <div className="relative">
@@ -76,6 +110,7 @@ export function ImageUpload({ onImageSelect, maxSize = 5 }: ImageUploadProps) {
           <button
             onClick={handleRemove}
             className="absolute top-2 right-2 p-1 bg-navy/80 rounded-full hover:bg-navy transition-colors"
+            disabled={loading}
           >
             <X size={16} className="text-slate-lighter" />
           </button>

@@ -21,8 +21,12 @@ import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import Button from "@/app/components/ui/button";
 import { Modal } from "@/app/components/ui/modal";
+import { ANON_SERVER_URL } from "@/app/constants";
+import { useRouter } from "next-nprogress-bar";
 
 export default function MessagesPage() {
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "unread" | "starred">("all");
@@ -35,41 +39,47 @@ export default function MessagesPage() {
   const [loadingStates, setLoadingStates] = useState<{
     [key: string]: boolean;
   }>({});
+  const [pageLoaded, setPageLoaded] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== undefined) {
+      // TODO: simulate API call to verify username exists when integrating with backend
+      const loadUserProfile = async () => {
+        try {
+          // simulate API call to verify username exists
+          const user = localStorage.getItem("user");
+          const token = localStorage.getItem("token");
+          setUser(JSON.parse(user as string));
+          setToken(JSON.parse(token as string));
+
+          console.log({ user, token });
+
+          if (user && token) {
+            toast.success("User exists");
+          } else {
+            toast.error("User does not exist");
+            // router.push("/signin");
+          }
+
+          // If we get here, user exists
+        } catch (err) {
+          toast.error("User does not exist");
+        }
+      };
+      loadUserProfile();
+    }
+
+    setPageLoaded(!pageLoaded);
+  }, [pageLoaded]);
 
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        setMessages([
-          {
-            _id: "1",
-            content: "You inspire me to be a better person every day...",
-            creator: "user123",
-            creatorName: "johndoe",
-            createdAt: new Date("2024-03-01T15:00:00"),
-            updatedAt: new Date("2024-03-01T15:00:00"),
-            isRead: false,
-            isStarred: true,
-            hasPassword: false,
-            isTemporary: true,
-            expiresAt: new Date("2024-03-01T15:00:00"),
-            image: "/images/lolo.jpg",
-            type: "appreciation",
-          },
-          {
-            _id: "2",
-            content: "so good to see you again, i missed you so much.",
-            creator: "user123",
-            creatorName: "johndoe",
-            createdAt: new Date("2024-03-01T15:00:00"),
-            updatedAt: new Date("2024-03-01T15:00:00"),
-            isRead: true,
-            isStarred: false,
-            hasPassword: true,
-            password: "1234",
-            type: "confession",
-          },
-        ]);
+        const response = await fetch(`${ANON_SERVER_URL}/api/messages/get`);
+        const messageResponse = await response.json();
+        setMessages(messageResponse.data.messages);
       } catch (error) {
         toast.error("Failed to load messages");
       } finally {
