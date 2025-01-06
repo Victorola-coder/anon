@@ -44,13 +44,11 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { clearAuth } = useAuthStore();
+  const { logout } = useAuthStore();
   const router = useRouter();
 
   const handleLogout = () => {
-    clearAuth();
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    logout();
     router.push("/signin");
   };
 

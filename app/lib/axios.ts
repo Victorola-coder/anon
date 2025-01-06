@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useAuth } from "@/app/hooks/use-auth";
+import { useAuth } from "../hooks/useAuth";
 import { ANON_SERVER_URL } from "@/app/constants";
 import { useAuthStore } from "@/app/store/useAuth";
 
@@ -25,10 +25,10 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = useAuthStore.getState().refreshToken;
-        const { refreshAccessToken } = useAuth();
-        const newToken = await refreshAccessToken(refreshToken!);
+        // const { refreshAccessToken } = useAuth();
+        // const newToken = await refreshAccessToken(refreshToken!);
 
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        // originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (error) {
         useAuthStore.getState().logout();
