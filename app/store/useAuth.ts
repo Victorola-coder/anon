@@ -6,17 +6,13 @@ interface User {
   username: string;
   age: number;
   profileUrl?: string;
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-  phoneNumber?: string;
 }
 
 interface AuthState {
   user: User | null;
   token: string | null;
   setUser: (user: User | null) => void;
-  setToken: (token: string) => void;
+  setToken: (token: string | null) => void;
   clearAuth: () => void;
 }
 

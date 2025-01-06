@@ -34,6 +34,8 @@ export default function AuthForm({ route }: AuthFormProps) {
     password: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const validateForm = () => {
     const usernameValidation = validations.username(formData.username);
@@ -71,7 +73,8 @@ export default function AuthForm({ route }: AuthFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
+    setError(null);
 
     try {
       const requestBody =
@@ -95,7 +98,6 @@ export default function AuthForm({ route }: AuthFormProps) {
       });
 
       const data = await response.json();
-      console.log("Auth Response:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "Authentication failed");
@@ -105,17 +107,20 @@ export default function AuthForm({ route }: AuthFormProps) {
         setToken(data.token);
         setUser(data.user);
         toast.success("Signed in successfully!");
-        window.location.href = "/dashboard";
+        router.push("/dashboard");
       } else {
         toast.success("Account created successfully!");
         router.push("/signin");
       }
     } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Authentication failed"
+      );
       toast.error(
         error instanceof Error ? error.message : "Authentication failed"
       );
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -149,7 +154,11 @@ export default function AuthForm({ route }: AuthFormProps) {
             type="text"
             label="Username"
             className="mt-1"
-            placeholder="enter your username e.g femzy"
+            placeholder={
+              route === "sign-in"
+                ? "enter your username e.g femzy"
+                : "create your username"
+            }
             value={formData.username}
             error={route === "sign-up" ? errors.username : undefined}
             onChange={(e) => handleInputChange("username", e.target.value)}
@@ -194,7 +203,7 @@ export default function AuthForm({ route }: AuthFormProps) {
 
         <Button
           type="submit"
-          loading={loading}
+          loading={isLoading}
           className="w-full"
           disabled={
             route === "sign-up" &&
@@ -203,7 +212,7 @@ export default function AuthForm({ route }: AuthFormProps) {
             !validations.age(formData.age).isValid
           }
         >
-          {loading ? (
+          {isLoading ? (
             <span className="flex items-center gap-2">
               <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
                 <circle

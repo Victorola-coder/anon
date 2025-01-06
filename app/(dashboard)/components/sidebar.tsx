@@ -1,9 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 import { clsx } from "clsx";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { useAuthStore } from "@/app/store/useAuth";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   MessageCircle,
@@ -43,6 +44,15 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { clearAuth } = useAuthStore();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    clearAuth();
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    router.push("/signin");
+  };
 
   return (
     <aside className="w-64 border-r border-navy-light bg-navy p-4">
@@ -79,7 +89,10 @@ export function Sidebar() {
         </nav>
 
         <div className="mt-auto">
-          <button className="w-full px-3 py-2 text-slate hover:text-teal transition-colors flex items-center gap-3 rounded-lg">
+          <button
+            onClick={handleLogout}
+            className="w-full px-3 py-2 text-slate hover:text-teal transition-colors flex items-center gap-3 rounded-lg"
+          >
             <LogOut size={18} strokeWidth={2} />
             <span>Logout</span>
           </button>

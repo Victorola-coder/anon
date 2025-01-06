@@ -2,22 +2,10 @@
 
 import { useState } from "react";
 import { Bell } from "lucide-react";
-import { motion } from "framer-motion";
-import Button from "@/app/components/ui/button";
-import { useAuthStore } from "@/app/store/useAuth";
-import { useRouter } from "next/navigation";
+import { getRandomColor } from "@/app/lib/randomColor";
 
 export function Header({ username }: { username?: string }) {
   const [showNotifications, setShowNotifications] = useState(false);
-  const { clearAuth } = useAuthStore();
-  const router = useRouter();
-
-  const handleLogout = () => {
-    clearAuth();
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    router.push("/signin");
-  };
 
   return (
     <header className="border-b border-navy-light bg-navy p-4">
@@ -35,7 +23,7 @@ export function Header({ username }: { username?: string }) {
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-navy-dark border border-navy-light rounded-lg shadow-lg p-4">
+              <div className="absolute right-0 mt-2 w-80 z-[100] bg-navy-dark border border-navy-light rounded-lg shadow-lg p-4">
                 <h3 className="text-slate-lighter font-semibold mb-2">
                   Notifications
                 </h3>
@@ -47,12 +35,14 @@ export function Header({ username }: { username?: string }) {
             )}
           </div>
 
-          <button
-            onClick={handleLogout}
-            className="text-slate hover:text-teal transition-colors"
+          <div
+            className="rounded-full size-[40px]"
+            style={{ backgroundColor: getRandomColor() }}
           >
-            Logout
-          </button>
+            <p className="text-[20px] font-re leading-[32px] font-semibold text-white py-[6px] px-[9px] text-center">
+              {username?.substring(0, 2).toUpperCase() || "V"}
+            </p>
+          </div>
         </div>
       </div>
     </header>

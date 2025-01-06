@@ -12,7 +12,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { user, token } = useAuthStore();
+  const { token } = useAuthStore();
 
   useEffect(() => {
     if (!token) {
@@ -20,12 +20,16 @@ export default function DashboardLayout({
     }
   }, [token, router]);
 
+  if (!token) {
+    return null; // or a loading spinner
+  }
+
   return (
     <div className="min-h-screen bg-navy-dark">
       <div className="flex h-screen">
         <Sidebar />
         <main className="flex-1 flex flex-col">
-          <Header username={user?.username} />
+          <Header />
           <div className="flex-1 overflow-auto p-6">{children}</div>
         </main>
       </div>
