@@ -2,15 +2,19 @@
 
 import { useState } from "react";
 import { Bell } from "lucide-react";
+import { useAuthStore } from "@/app/store/useAuth";
 import { getRandomColor } from "@/app/lib/randomColor";
 
 export function Header({ username }: { username?: string }) {
+  const { user } = useAuthStore();
   const [showNotifications, setShowNotifications] = useState(false);
 
   return (
     <header className="border-b border-navy-light bg-navy p-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-slate-lighter">Welcome, {username || "User"}</h1>
+        <h1 className="text-slate-lighter capitalize">
+          Welcome, {user?.username || "User"}
+        </h1>
 
         <div className="flex items-center gap-4">
           <div className="relative">
@@ -40,7 +44,7 @@ export function Header({ username }: { username?: string }) {
             style={{ backgroundColor: getRandomColor() }}
           >
             <p className="text-[20px] font-re leading-[32px] font-semibold text-white py-[6px] px-[9px] text-center">
-              {username?.substring(0, 2).toUpperCase() || "V"}
+              {user?.username?.substring(0, 1).toUpperCase() || "V"}
             </p>
           </div>
         </div>

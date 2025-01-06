@@ -170,3 +170,19 @@ interface FormErrors {
   password?: string;
   age?: string;
 }
+
+interface PaginationInfo {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+interface MessagesResponse {
+  status: string;
+  message: string;
+  data: {
+    paginationInfo: PaginationInfo;
+    messages: Message[];
+  };
+}

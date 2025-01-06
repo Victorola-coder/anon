@@ -7,36 +7,36 @@ import { useAuthStore } from "@/app/store/useAuth";
 import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import {
-  LayoutDashboard,
   MessageCircle,
   BarChart2,
   Settings,
   LogOut,
+  LayoutDashboard,
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
 const navItems = [
-  {
-    name: "Overview",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
+  // {
+  //   name: "Overview",
+  //   href: "/dashboard",
+  //   icon: LayoutDashboard,
+  // },
   {
     name: "Messages",
     href: "/messages",
     icon: MessageCircle,
   },
-  {
-    name: "Polls",
-    href: "/polls",
-    icon: BarChart2,
-  },
-  {
-    name: "Daily Prompts",
-    href: "/prompts",
-    icon: Sparkles,
-  },
+  // {
+  //   name: "Polls",
+  //   href: "/polls",
+  //   icon: BarChart2,
+  // },
+  // {
+  //   name: "Daily Prompts",
+  //   href: "/prompts",
+  //   icon: Sparkles,
+  // },
   {
     name: "Settings",
     href: "/settings",
