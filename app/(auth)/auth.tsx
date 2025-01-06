@@ -29,8 +29,8 @@ export default function AuthForm({ route }: AuthFormProps) {
   const { setUser, setToken } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    username: "",
     age: 18,
+    username: "",
     password: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
@@ -77,9 +77,9 @@ export default function AuthForm({ route }: AuthFormProps) {
       const requestBody =
         route === "sign-up"
           ? {
+              age: Number(formData.age),
               username: formData.username,
               password: formData.password,
-              age: Number(formData.age),
             }
           : {
               username: formData.username,
@@ -148,11 +148,11 @@ export default function AuthForm({ route }: AuthFormProps) {
             name="username"
             type="text"
             label="Username"
-            value={formData.username}
-            error={errors.username}
-            onChange={(e) => handleInputChange("username", e.target.value)}
             className="mt-1"
-            placeholder="femzy"
+            placeholder="enter your username e.g femzy"
+            value={formData.username}
+            error={route === "sign-up" ? errors.username : undefined}
+            onChange={(e) => handleInputChange("username", e.target.value)}
           />
         </fieldset>
 
@@ -160,13 +160,13 @@ export default function AuthForm({ route }: AuthFormProps) {
           <fieldset>
             <Input
               id="age"
-              type="number"
               label="Age"
-              value={formData.age.toString()}
-              error={errors.age}
-              onChange={(e) => handleInputChange("age", Number(e.target.value))}
+              type="number"
               className="mt-1"
+              error={errors.age}
+              value={formData.age.toString()}
               placeholder="must be 18 or older"
+              onChange={(e) => handleInputChange("age", Number(e.target.value))}
             />
           </fieldset>
         )}
@@ -177,20 +177,31 @@ export default function AuthForm({ route }: AuthFormProps) {
             id="password"
             type="password"
             label="Password"
-            value={formData.password}
-            error={errors.password}
-            onChange={(e) => handleInputChange("password", e.target.value)}
             className="mt-1"
-            placeholder="lowercase, uppercase, number, special char, min 8 chars"
+            value={formData.password}
+            error={route === "sign-up" ? errors.password : undefined}
+            onChange={(e) => handleInputChange("password", e.target.value)}
+            placeholder={
+              route === "sign-up"
+                ? "lowercase, uppercase, number, special char, min 8 chars"
+                : "Enter your password"
+            }
           />
-          <PasswordStrength password={formData.password} />
+          {route === "sign-up" && (
+            <PasswordStrength password={formData.password} />
+          )}
         </fieldset>
 
         <Button
           type="submit"
           loading={loading}
           className="w-full"
-          disabled={loading || !validateForm()}
+          disabled={
+            route === "sign-up" &&
+            !validations.username(formData.username).isValid &&
+            !validations.password(formData.password).isValid &&
+            !validations.age(formData.age).isValid
+          }
         >
           {loading ? (
             <span className="flex items-center gap-2">
