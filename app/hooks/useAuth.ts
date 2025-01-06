@@ -2,7 +2,7 @@ import { toast } from "sonner";
 import { useRouter } from "next-nprogress-bar";
 import { ANON_SERVER_URL } from "@/app/constants";
 import { useAuthStore } from "@/app/store/useAuth";
-
+import Cookies from "js-cookie";
 export const useAuth = () => {
   const router = useRouter();
   const { setAuth, setLoading, logout } = useAuthStore();
@@ -61,6 +61,9 @@ export const useAuth = () => {
   };
 
   const handleLogout = () => {
+    console.log("logout");
+    Cookies.remove("token");  
+    Cookies.remove("refreshToken");
     logout();
     router.push("/signin");
     toast.success("Logged out successfully");
