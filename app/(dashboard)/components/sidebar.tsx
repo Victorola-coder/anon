@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useAuthStore } from "@/app/store/useAuth";
 import { usePathname, useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 import {
   LayoutDashboard,
   MessageCircle,
@@ -13,6 +14,7 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const navItems = [
   {
@@ -48,8 +50,11 @@ export function Sidebar() {
   const router = useRouter();
 
   const handleLogout = () => {
-    logout();
+    Cookies.remove("token");
+    Cookies.remove("refreshToken");
     router.push("/signin");
+    toast.success("Logged out successfully");
+    logout();
   };
 
   return (

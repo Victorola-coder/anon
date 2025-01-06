@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Header } from "./components/header";
 import { Sidebar } from "./components/sidebar";
 import { useAuthStore } from "@/app/store/useAuth";
+import Cookies from "js-cookie";
 
 export default function DashboardLayout({
   children,
@@ -12,19 +13,20 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuthStore();
-
+  const { isLoading } = useAuthStore();
+  const token = Cookies.get("token");
+  // console.log(token);
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!isLoading && !token) {
       router.push("/signin");
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isLoading, router, token]);
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (!isAuthenticated) {
+  if (!token) {
     return null;
   }
 
