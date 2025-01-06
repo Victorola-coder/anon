@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { Sidebar } from "./components/sidebar";
-import { Header } from "./components/header";
 import { useRouter } from "next/navigation";
+import { Header } from "./components/header";
+import { Sidebar } from "./components/sidebar";
 import { useAuthStore } from "@/app/store/useAuth";
 
 export default function DashboardLayout({
@@ -12,16 +12,20 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { token } = useAuthStore();
+  const { isAuthenticated, isLoading } = useAuthStore();
 
   useEffect(() => {
-    if (!token) {
+    if (!isLoading && !isAuthenticated) {
       router.push("/signin");
     }
-  }, [token, router]);
+  }, [isAuthenticated, isLoading, router]);
 
-  if (!token) {
-    return null; // or a loading spinner
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return null;
   }
 
   return (

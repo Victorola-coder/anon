@@ -1,14 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { toast } from "sonner";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/app/components/ui";
 import Input from "@/app/components/ui/input";
-import { useRouter } from "next-nprogress-bar";
-import { ANON_SERVER_URL } from "@/app/constants";
-import { useAuthStore } from "@/app/store/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 import { validations } from "@/app/lib/validations";
 import { PasswordStrength } from "@/app/components/password-strength";
 
@@ -24,10 +21,12 @@ interface FormErrors {
   age?: string;
 }
 
+interface AuthFormProps {
+  route: "sign-in" | "sign-up";
+}
+
 export default function AuthForm({ route }: AuthFormProps) {
-  const router = useRouter();
-  const { setUser, setToken } = useAuthStore();
-  const [loading, setLoading] = useState(false);
+  const { signIn, signUp } = useAuth();
   const [formData, setFormData] = useState<FormData>({
     age: 18,
     username: "",
@@ -35,36 +34,16 @@ export default function AuthForm({ route }: AuthFormProps) {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const validateForm = () => {
-    const usernameValidation = validations.username(formData.username);
-    const passwordValidation = validations.password(formData.password);
-    const ageValidation =
-      route === "sign-up" ? validations.age(formData.age) : { isValid: true };
-
-    const isValid =
-      usernameValidation.isValid &&
-      passwordValidation.isValid &&
-      ageValidation.isValid &&
-      formData.username.trim() !== "" &&
-      formData.password.trim() !== "" &&
-      (route !== "sign-up" || formData.age >= 18);
-
-    return isValid;
-  };
-
-  const handleInputChange = (
-    field: keyof FormData,
-    value: string | number | number
-  ) => {
+  const handleInputChange = (field: keyof FormData, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
-    // @ts-ignore
-    const validation = validations[field as keyof typeof validations](value);
+    const validation = validations[field as keyof typeof validations]?.(
+      value as never
+    );
     if (!value) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
-    } else if (!validation.isValid) {
+    } else if (validation && !validation.isValid) {
       setErrors((prev) => ({ ...prev, [field]: validation.message }));
     } else {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -74,60 +53,28 @@ export default function AuthForm({ route }: AuthFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
 
     try {
-      const requestBody =
-        route === "sign-up"
-          ? {
-              age: Number(formData.age),
-              username: formData.username,
-              password: formData.password,
-            }
-          : {
-              username: formData.username,
-              password: formData.password,
-            };
-
-      const response = await fetch(`${ANON_SERVER_URL}/api/user/${route}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Authentication failed");
-      }
-
       if (route === "sign-in") {
-        setToken(data.token);
-        setUser(data.user);
-        toast.success("Signed in successfully!");
-        router.push("/dashboard");
+        await signIn(formData.username, formData.password);
       } else {
-        toast.success("Account created successfully!");
-        router.push("/signin");
+        await signUp(formData.username, formData.password, formData.age);
       }
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Authentication failed"
-      );
-      toast.error(
-        error instanceof Error ? error.message : "Authentication failed"
-      );
+      // Error handling is done in useAuth hook
     } finally {
       setIsLoading(false);
     }
   };
 
-  // const isDisabled =
-  //   !validations.username(formData.username).isValid ||
-  //   !validations.password(formData.password).isValid ||
-  // (route === "sign-up" && !validations.age(formData.age).isValid);
+  const isFormValid = () => {
+    const usernameValid = validations.username(formData.username).isValid;
+    const passwordValid = validations.password(formData.password).isValid;
+    const ageValid =
+      route === "sign-up" ? validations.age(formData.age).isValid : true;
+
+    return usernameValid && passwordValid && ageValid;
+  };
 
   return (
     <motion.div
@@ -135,7 +82,7 @@ export default function AuthForm({ route }: AuthFormProps) {
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-md space-y-8"
     >
-      <div className="">
+      <div>
         <h2 className="text-3xl font-bold tracking-tight">
           {route === "sign-in" ? "Welcome back" : "Create an account"}
         </h2>
@@ -147,73 +94,63 @@ export default function AuthForm({ route }: AuthFormProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <fieldset>
-          <Input
-            id="username"
-            name="username"
-            type="text"
-            label="Username"
-            className="mt-1"
-            placeholder={
-              route === "sign-in"
-                ? "enter your username e.g femzy"
-                : "create your username"
-            }
-            value={formData.username}
-            error={route === "sign-up" ? errors.username : undefined}
-            onChange={(e) => handleInputChange("username", e.target.value)}
-          />
-        </fieldset>
+        <Input
+          id="username"
+          name="username"
+          type="text"
+          label="Username"
+          className="mt-1"
+          placeholder={
+            route === "sign-in"
+              ? "enter your username e.g femzy"
+              : "create your username"
+          }
+          value={formData.username}
+          error={route === "sign-up" ? errors.username : undefined}
+          onChange={(e) => handleInputChange("username", e.target.value)}
+        />
 
         {route === "sign-up" && (
-          <fieldset>
-            <Input
-              id="age"
-              label="Age"
-              type="number"
-              className="mt-1"
-              error={errors.age}
-              value={formData.age.toString()}
-              placeholder="must be 18 or older"
-              onChange={(e) => handleInputChange("age", Number(e.target.value))}
-            />
-          </fieldset>
+          <Input
+            id="age"
+            label="Age"
+            type="number"
+            className="mt-1"
+            error={errors.age}
+            value={formData.age.toString()}
+            placeholder="must be 18 or older"
+            onChange={(e) => handleInputChange("age", Number(e.target.value))}
+          />
         )}
 
-        <fieldset>
-          <Input
-            required
-            id="password"
-            type="password"
-            label="Password"
-            className="mt-1"
-            value={formData.password}
-            error={route === "sign-up" ? errors.password : undefined}
-            onChange={(e) => handleInputChange("password", e.target.value)}
-            placeholder={
-              route === "sign-up"
-                ? "lowercase, uppercase, number, special char, min 8 chars"
-                : "Enter your password"
-            }
-          />
-          {route === "sign-up" && (
-            <PasswordStrength password={formData.password} />
-          )}
-        </fieldset>
+        <Input
+          required
+          id="password"
+          type="password"
+          label="Password"
+          className="mt-1"
+          value={formData.password}
+          error={route === "sign-up" ? errors.password : undefined}
+          onChange={(e) => handleInputChange("password", e.target.value)}
+          placeholder={
+            route === "sign-up"
+              ? "lowercase, uppercase, number, special char, min 8 chars"
+              : "Enter your password"
+          }
+        />
+
+        {route === "sign-up" && (
+          <PasswordStrength password={formData.password} />
+        )}
 
         <Button
           type="submit"
           loading={isLoading}
           className="w-full"
-          disabled={
-            route === "sign-up" &&
-            !validations.username(formData.username).isValid &&
-            !validations.password(formData.password).isValid &&
-            !validations.age(formData.age).isValid
-          }
+          disabled={!isFormValid() || isLoading}
         >
           {isLoading ? (
-            <span className="flex items-center gap-2">
+            <span className="flex items-center justify-center gap-2">
               <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
                 <circle
                   className="opacity-25"
@@ -230,6 +167,7 @@ export default function AuthForm({ route }: AuthFormProps) {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 />
               </svg>
+              {route === "sign-in" ? "Signing in..." : "Creating account..."}
             </span>
           ) : route === "sign-in" ? (
             "Sign in"
@@ -239,7 +177,7 @@ export default function AuthForm({ route }: AuthFormProps) {
         </Button>
       </form>
 
-      <p className="text-center text-sm">
+      <p className="text-left text-sm">
         {route === "sign-in" ? (
           <>
             Don't have an account?{" "}
