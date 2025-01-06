@@ -1,12 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Cookies from "js-cookie";
+import { useRouter } from "next-nprogress-bar";
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+  const token = Cookies.get("token");
+  if (token) {
+    router.push("/dashboard");
+  }
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* Left Side - Hero Section */}
