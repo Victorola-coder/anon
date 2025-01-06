@@ -16,10 +16,12 @@ export const useAuth = () => {
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message);
+      const { status, message, data, token } = await response.json();
+      if (!response.ok || status !== "success") throw new Error(message);
 
-      setAuth(data.user, data.token, data.refreshToken);
+      document.cookie = `token=${token}; path=/`;
+
+      setAuth(data.user, token, token);
       toast.success("Signed in successfully!");
       router.push("/dashboard");
       return data;

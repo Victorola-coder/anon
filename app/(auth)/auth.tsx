@@ -147,7 +147,9 @@ export default function AuthForm({ route }: AuthFormProps) {
           type="submit"
           loading={isLoading}
           className="w-full"
-          disabled={!isFormValid() || isLoading}
+          disabled={
+            route === "sign-up" ? !isFormValid() || isLoading : undefined
+          }
         >
           {isLoading ? (
             <span className="flex items-center justify-center gap-2">
