@@ -9,8 +9,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-montserrat)"],
         mon: ["var(--font-montserrat)"],
+        sans: ["var(--font-montserrat)"],
       },
       keyframes: {
         "fade-effect": {

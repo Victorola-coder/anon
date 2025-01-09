@@ -1,11 +1,8 @@
 import "./global.css";
 import { Toaster } from "sonner";
-import { AOS } from "./components/global";
+import Providers from "./providers";
 import { Montserrat } from "next/font/google";
 import type { Metadata, Viewport } from "next";
-import { ThemeProvider } from "./providers/theme-provider";
-import { AppProgressBar } from "next-nprogress-bar";
-import Providers from "./providers";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -79,6 +76,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${montserrat.variable} antialiased`}>
+        <Toaster richColors />
         <Providers>{children}</Providers>
       </body>
     </html>
