@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Cookies from "js-cookie";
+import { motion } from "framer-motion";
 import { useRouter } from "next-nprogress-bar";
 
 export default function AuthLayout({

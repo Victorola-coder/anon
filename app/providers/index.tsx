@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { AOS } from "../components/global";
 import { ThemeProvider } from "./theme-provider";
 import { AppProgressBar } from "next-nprogress-bar";
